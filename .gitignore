@@ -1,0 +1,12 @@
+# Docker volumes
+**/pgdata/
+**/volumes/
+
+# Dumps (păstrezi doar latest)
+db/shared/dumps/*.sql
+!db/shared/dumps/safeflow_db_full_latest.sql
+
+# OS / IDE
+.vscode/
+.idea/
+*.log
