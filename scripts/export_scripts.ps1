@@ -1,0 +1,16 @@
+$timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+
+$dumpsDir = "..\shared\dumps"
+$versioned = "$dumpsDir\safeflow_db_full_$timestamp.sql"
+$latest = "$dumpsDir\safeflow_db_full_latest.sql"
+
+New-Item -ItemType Directory -Force -Path $dumpsDir | Out-Null
+
+docker exec safeflow-db-dev pg_dump -U postgres -d safeflow_db --no-owner --no-privileges |
+  Out-File -FilePath $versioned -Encoding utf8
+
+Copy-Item $versioned $latest -Force
+
+Write-Host "Dump exported:"
+Write-Host $versioned
+Write-Host $latest
