@@ -20,3 +20,13 @@ docker compose up
 docker compose down -v
 docker compose up
 ```
+
+## Enter WSL
+```bash
+devbox shell
+```
+
+## Run backend 
+```bash
+uv run uvicorn app.main:app --reload
+```

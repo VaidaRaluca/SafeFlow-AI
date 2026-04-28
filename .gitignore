@@ -1,8 +1,25 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+
 # Docker volumes
 **/pgdata/
 **/volumes/
 
-# Dumps (păstrezi doar latest)
+# Dumps
 db/shared/dumps/*.sql
 !db/shared/dumps/safeflow_db_full_latest.sql
 
