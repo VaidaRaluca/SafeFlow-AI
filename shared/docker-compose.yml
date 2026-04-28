@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  safeflow-db-shared:
+    image: postgres:17
+    container_name: safeflow-db-shared
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: safeflow_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - safeflow_pgdata_shared:/var/lib/postgresql/data
+      - ./dumps/safeflow_db_full_latest.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+
+volumes:
+  safeflow_pgdata_shared:
