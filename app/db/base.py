@@ -1,1 +1,5 @@
-"""Defines ORM base ownership for backend skeleton only."""
+from sqlalchemy.orm import DeclarativeBase
+
+
+class Base(DeclarativeBase):
+    pass
