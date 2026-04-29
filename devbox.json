@@ -6,6 +6,7 @@
   ],
   "shell": {
     "init_hook": [
+      "export UV_LINK_MODE=copy",
       ". $VENV_DIR/bin/activate"
     ],
     "scripts": {
