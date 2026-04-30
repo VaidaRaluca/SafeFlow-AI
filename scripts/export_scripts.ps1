@@ -1,8 +1,11 @@
 $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
 
-$dumpsDir = "..\shared\dumps"
-$versioned = "$dumpsDir\safeflow_db_full_$timestamp.sql"
-$latest = "$dumpsDir\safeflow_db_full_latest.sql"
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$repoRoot = Split-Path -Parent $scriptDir
+$dumpsDir = Join-Path $repoRoot "shared\dumps"
+
+$versioned = Join-Path $dumpsDir "safeflow_db_full_$timestamp.sql"
+$latest = Join-Path $dumpsDir "safeflow_db_full_latest.sql"
 
 New-Item -ItemType Directory -Force -Path $dumpsDir | Out-Null
 
