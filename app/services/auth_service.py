@@ -12,6 +12,7 @@ from app.core.security import (
     hash_password,
     verify_password,
 )
+from app.repositories.account_repository import AccountRepository
 from app.repositories.user_repository import UserRepository
 from app.schemas.auth import LoginRequest, RefreshTokenRequest, RegisterResponse, TokenResponse
 from app.schemas.user import UserCreate
@@ -20,6 +21,7 @@ from app.schemas.user import UserCreate
 class AuthService:
     def __init__(self, db: Session):
         self.user_repository = UserRepository(db)
+        self.account_repository = AccountRepository(db)
 
     def register(self, payload: UserCreate) -> RegisterResponse:
         if self.user_repository.user_exists_by_email(str(payload.email)):
@@ -33,6 +35,17 @@ class AuthService:
             email=str(payload.email),
             password_hash=hash_password(payload.password),
         )
+
+        try:
+            self.account_repository.create_account(
+                user_id=user.id,
+                iban=self._generate_fake_iban(user.id),
+            )
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=str(exc),
+            ) from exc
 
         return RegisterResponse(
             user=user,
@@ -78,3 +91,6 @@ class AuthService:
             access_token=create_access_token(user_id),
             refresh_token=create_refresh_token(user_id),
         )
+
+    def _generate_fake_iban(self, user_id: UUID) -> str:
+        return f"RO49SAFE{user_id.hex[:26]}".upper()
