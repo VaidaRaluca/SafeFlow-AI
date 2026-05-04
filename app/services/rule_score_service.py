@@ -60,6 +60,7 @@ class RuleScoreService:
     ) -> tuple[Decimal, list[str]]:
         score = Decimal("0")
         reason_codes: list[str] = []
+        transaction_repository = TransactionRepository(db)
 
         is_trusted = ContactRepository.is_receiver_trusted(db, sender_id, receiver_id)
 
@@ -68,16 +69,13 @@ class RuleScoreService:
         else:
             # Rule 1: New beneficiary + high amount
             previous_transactions_count = (
-                TransactionRepository.count_previous_transactions_to_receiver(
-                    db,
+                transaction_repository.get_previous_transactions_to_receiver_for_features(
                     sender_id,
                     receiver_id,
                 )
             )
-            sender_average_amount = TransactionRepository.get_sender_average_transaction_amount(
-                db,
-                sender_id,
-            )
+            sender_statistics = transaction_repository.get_sender_transaction_statistics(sender_id)
+            sender_average_amount = sender_statistics["avg_amount"] or Decimal("0")
 
             high_amount = (
                 amount >= HIGH_AMOUNT_FLOOR
@@ -103,22 +101,14 @@ class RuleScoreService:
                     reason_codes.append(REASON_URGENCY_SUSPICIOUS_KEYWORD)
 
             # Rule 3: Gradual trust-building
-            small_transfers_count = TransactionRepository.count_small_transactions_to_receiver(
-                db,
+            small_transfers_count = transaction_repository.get_small_transaction_count_to_receiver_for_features(
                 sender_id,
                 receiver_id,
                 SMALL_TRANSFER_THRESHOLD,
             )
-            approved_history = TransactionRepository.get_previous_approved_transactions_to_receiver(
-                db,
-                sender_id,
-                receiver_id,
-            )
 
             is_large_current_transfer = amount >= GRADUAL_LARGE_TRANSFER_THRESHOLD
-            has_gradual_pattern = (
-                small_transfers_count >= MIN_SMALL_TRANSFER_COUNT and len(approved_history) > 0
-            )
+            has_gradual_pattern = small_transfers_count >= MIN_SMALL_TRANSFER_COUNT
 
             if has_gradual_pattern and is_large_current_transfer:
                 score += GRADUAL_TRUST_BUILDING_WEIGHT
