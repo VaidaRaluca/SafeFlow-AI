@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
+from pathlib import Path
 
 class Settings(BaseSettings):
     DATABASE_URL: str
@@ -16,6 +16,10 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
     )
+
+    MODEL_DIR: Path = Path("app/ml_models")
+    GLOBAL_MODEL_FILENAME: str = "isolation_forest_global.joblib"
+    MODEL_PATH : Path = Path("app/ml_models/isolation_forest_global.joblib")
 
 
 settings = Settings()

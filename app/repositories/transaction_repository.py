@@ -239,3 +239,14 @@ class TransactionRepository:
             Transaction.status.in_(SAFE_TRANSACTION_STATUSES),
         )
         return int(self.db.scalar(stmt) or 0)
+
+
+    # Fetch all safe transactions across all users for global Isolation Forest training.
+    def get_all_safe_transactions_for_training(self) -> list[Transaction]:
+        stmt = (
+            select(Transaction)
+            .where(Transaction.status.in_(SAFE_TRANSACTION_STATUSES))
+            .order_by(Transaction.created_at.desc())
+        )
+
+        return list(self.db.scalars(stmt).all())
