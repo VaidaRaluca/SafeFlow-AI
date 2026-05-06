@@ -73,11 +73,14 @@ def create_payment(
         db.rollback()
         raise PaymentValidationError("Could not create the pending payment.") from exc
 
-    risk_evaluation = _evaluate_transaction_risk(db=db, transaction=transaction)
-    risk_level = _extract_risk_level(
-        risk_evaluation=risk_evaluation,
-        transaction=transaction,
-    )
+    try:
+        risk_evaluation = _evaluate_transaction_risk(db=db, transaction=transaction)
+        risk_level = _extract_risk_level(
+            risk_evaluation=risk_evaluation,
+            transaction=transaction,
+        )
+    except PaymentDependencyNotReadyError:
+        return transaction
 
     try:
         transaction = _apply_risk_level(
