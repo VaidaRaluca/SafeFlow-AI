@@ -3,24 +3,24 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.dependencies.auth import get_current_user
 from app.dependencies.database import get_db
+from app.models.user import User
 from app.schemas.account import AccountResponse
 from app.schemas.payment import PaymentCancel, PaymentConfirm, PaymentCreate
 from app.schemas.transaction import TransactionDetailResponse
+from app.services.account_service import AccountService
 from app.services import payment_service
 
 
 router = APIRouter(prefix="/api/payments", tags=["payments"])
 
 
-def get_current_payment_account() -> AccountResponse:
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail=(
-            "Current account authentication is owned by User & Account Management "
-            "and is not implemented yet."
-        ),
-    )
+def get_current_payment_account(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> AccountResponse:
+    return AccountService(db).get_current_account(current_user.id)
 
 
 @router.post(
