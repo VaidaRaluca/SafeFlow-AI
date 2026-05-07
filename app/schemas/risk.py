@@ -4,7 +4,7 @@ from decimal import Decimal
 
 from pydantic import BaseModel, Field
 
-from app.models.enums import RiskDecision, RiskLevel
+from app.core.enums import RiskDecision, RiskLevel
 
 
 class RiskAssessmentResponse(BaseModel): # Sends rule score, anomaly score, combined score, risk level, and decision

@@ -5,6 +5,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.repositories import transaction_repository
+from app.repositories.account_repository import AccountRepository
+from app.repositories.contact_repository import ContactRepository
+from app.repositories.transaction_repository import TransactionRepository
 from app.schemas.account import AccountResponse
 from app.schemas.payment import PaymentCancel, PaymentConfirm, PaymentCreate
 from app.schemas.transaction import TransactionDetailResponse
@@ -53,8 +56,16 @@ def create_payment(
     sender_account: AccountResponse,
     payment: PaymentCreate,
 ) -> TransactionDetailResponse:
-    if sender_account.id == payment.receiver_id:
+    receiver_account = _resolve_receiver_account(db=db, payment=payment)
+
+    if sender_account.id == receiver_account.id:
         raise PaymentValidationError("Sender and receiver accounts must be different.")
+
+    if sender_account.currency != payment.currency:
+        raise PaymentValidationError("Payment currency must match the sender account.")
+
+    if receiver_account.currency != payment.currency:
+        raise PaymentValidationError("Payment currency must match the receiver account.")
 
     if sender_account.balance < payment.amount:
         raise PaymentValidationError("Insufficient funds for this payment.")
@@ -63,10 +74,15 @@ def create_payment(
         transaction = transaction_repository.create_pending_transaction(
             db=db,
             sender_id=sender_account.id,
-            receiver_id=payment.receiver_id,
+            receiver_id=receiver_account.id,
             amount=payment.amount,
             currency=payment.currency,
             description=payment.description,
+        )
+        _ensure_contact_exists(
+            db=db,
+            sender_id=sender_account.id,
+            receiver_id=receiver_account.id,
         )
         db.commit()
     except SQLAlchemyError as exc:
@@ -184,7 +200,14 @@ def cancel_payment(
         if canceled_transaction is None:
             raise PaymentNotFoundError("Payment was not found.")
 
-        return canceled_transaction
+        detailed_transaction = TransactionRepository(db).get_transaction_details(
+            canceled_transaction.id,
+        )
+
+        if detailed_transaction is None:
+            raise PaymentNotFoundError("Payment was not found.")
+
+        return detailed_transaction
     except SQLAlchemyError as exc:
         db.rollback()
         raise PaymentValidationError("Could not cancel the payment.") from exc
@@ -196,12 +219,60 @@ def _evaluate_transaction_risk(
 ) -> object:
     evaluator = getattr(risk_service, "evaluate_transaction", None)
 
-    if evaluator is None:
-        raise PaymentDependencyNotReadyError(
-            "Risk evaluation is owned by the risk team and is not implemented yet."
+    if evaluator is not None:
+        return evaluator(db=db, transaction=transaction)
+
+    service_evaluator = getattr(
+        getattr(risk_service, "RiskService", None),
+        "evaluate_transaction_risk",
+        None,
+    )
+
+    if service_evaluator is not None:
+        return service_evaluator(
+            db=db,
+            transaction_id=transaction.id,
+            sender_id=transaction.sender_id,
+            receiver_id=transaction.receiver_id,
+            amount=transaction.amount,
+            description=transaction.description,
+            created_at=transaction.created_at,
         )
 
-    return evaluator(db=db, transaction=transaction)
+    raise PaymentDependencyNotReadyError(
+        "Risk evaluation is owned by the risk team and is not implemented yet."
+    )
+
+
+def _resolve_receiver_account(
+    db: Session,
+    payment: PaymentCreate,
+) -> AccountResponse:
+    account_repository = AccountRepository(db)
+
+    if payment.receiver_id is not None:
+        receiver_account = account_repository.get_account_by_id(payment.receiver_id)
+    elif payment.receiver_iban is not None:
+        receiver_account = account_repository.get_account_by_iban(payment.receiver_iban)
+    else:
+        receiver_account = None
+
+    if receiver_account is None:
+        raise PaymentValidationError("Receiver account was not found.")
+
+    return receiver_account
+
+
+def _ensure_contact_exists(
+    db: Session,
+    sender_id: uuid.UUID,
+    receiver_id: uuid.UUID,
+) -> None:
+    ContactRepository.create_contact(
+        db=db,
+        sender_id=sender_id,
+        receiver_id=receiver_id,
+    )
 
 
 def _extract_risk_level(
@@ -276,7 +347,14 @@ def _apply_risk_level(
     if updated_transaction is None:
         raise PaymentNotFoundError("Payment was not found.")
 
-    return updated_transaction
+    detailed_transaction = TransactionRepository(db).get_transaction_details(
+        updated_transaction.id,
+    )
+
+    if detailed_transaction is None:
+        raise PaymentNotFoundError("Payment was not found.")
+
+    return detailed_transaction
 
 
 def _ensure_sender_owns_transaction(

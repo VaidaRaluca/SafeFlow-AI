@@ -40,42 +40,38 @@ SUSPICIOUS_KEYWORDS = (
     "prize",
 )
 
-REASON_NEW_BENEFICIARY_HIGH_AMOUNT = "new_beneficiary_high_amount"
-REASON_URGENCY_NIGHT_TIME = "urgency_night_time"
-REASON_URGENCY_SUSPICIOUS_KEYWORD = "urgency_suspicious_keyword"
-REASON_GRADUAL_TRUST_BUILDING = "gradual_trust_building"
-REASON_TRUSTED_BENEFICIARY = "trusted_beneficiary"
-
-
 class RuleScoreService:
 
     @staticmethod
     def calculate_rule_score(
         db: Session,
+        transaction_id: uuid.UUID,
         sender_id: uuid.UUID,
         receiver_id: uuid.UUID,
         amount: Decimal,
         description: str | None,
         created_at: datetime,
-    ) -> tuple[Decimal, list[str]]:
+    ) -> Decimal:
         score = Decimal("0")
-        reason_codes: list[str] = []
         transaction_repository = TransactionRepository(db)
 
         is_trusted = ContactRepository.is_receiver_trusted(db, sender_id, receiver_id)
 
-        if is_trusted:
-            reason_codes.append(REASON_TRUSTED_BENEFICIARY)
-        else:
+        if not is_trusted:
             # Rule 1: New beneficiary + high amount
             previous_transactions_count = (
-                transaction_repository.get_previous_transactions_to_receiver_for_features(
-                    sender_id,
-                    receiver_id,
+                transaction_repository.count_previous_transactions_to_receiver(
+                    sender_account_id=sender_id,
+                    receiver_account_id=receiver_id,
+                    exclude_transaction_id=transaction_id,
                 )
             )
-            sender_statistics = transaction_repository.get_sender_transaction_statistics(sender_id)
-            sender_average_amount = sender_statistics["avg_amount"] or Decimal("0")
+            sender_average_amount = (
+                transaction_repository.get_sender_average_transaction_amount(
+                    sender_account_id=sender_id,
+                    exclude_transaction_id=transaction_id,
+                )
+            )
 
             high_amount = (
                 amount >= HIGH_AMOUNT_FLOOR
@@ -87,7 +83,6 @@ class RuleScoreService:
 
             if previous_transactions_count == 0 and high_amount:
                 score += NEW_BENEFICIARY_HIGH_AMOUNT_WEIGHT
-                reason_codes.append(REASON_NEW_BENEFICIARY_HIGH_AMOUNT)
 
             # Rule 2: Urgency / social engineering
             is_night_time = RuleScoreService._is_night_time(created_at)
@@ -95,16 +90,13 @@ class RuleScoreService:
 
             if is_night_time or has_suspicious_keywords:
                 score += URGENCY_SOCIAL_ENGINEERING_WEIGHT
-                if is_night_time:
-                    reason_codes.append(REASON_URGENCY_NIGHT_TIME)
-                if has_suspicious_keywords:
-                    reason_codes.append(REASON_URGENCY_SUSPICIOUS_KEYWORD)
 
             # Rule 3: Gradual trust-building
-            small_transfers_count = transaction_repository.get_small_transaction_count_to_receiver_for_features(
-                sender_id,
-                receiver_id,
-                SMALL_TRANSFER_THRESHOLD,
+            small_transfers_count = transaction_repository.count_small_transactions_to_receiver(
+                sender_account_id=sender_id,
+                receiver_account_id=receiver_id,
+                threshold=SMALL_TRANSFER_THRESHOLD,
+                exclude_transaction_id=transaction_id,
             )
 
             is_large_current_transfer = amount >= GRADUAL_LARGE_TRANSFER_THRESHOLD
@@ -112,9 +104,8 @@ class RuleScoreService:
 
             if has_gradual_pattern and is_large_current_transfer:
                 score += GRADUAL_TRUST_BUILDING_WEIGHT
-                reason_codes.append(REASON_GRADUAL_TRUST_BUILDING)
 
-        return RuleScoreService._clamp_score(score), reason_codes
+        return RuleScoreService._clamp_score(score)
 
     @staticmethod
     def _is_night_time(created_at: datetime) -> bool:

@@ -5,19 +5,20 @@ from sqlalchemy.orm import Session
 
 from app.dependencies.auth import get_current_user
 from app.dependencies.database import get_db
-from app.models.user import User
 from app.schemas.account import AccountResponse
 from app.schemas.payment import PaymentCancel, PaymentConfirm, PaymentCreate
 from app.schemas.transaction import TransactionDetailResponse
-from app.services.account_service import AccountService
+from app.schemas.user import UserResponse
 from app.services import payment_service
+from app.services.account_service import AccountService
+from app.services.auth_service import AuthService
 
 
 router = APIRouter(prefix="/api/payments", tags=["payments"])
 
 
 def get_current_payment_account(
-    current_user: User = Depends(get_current_user),
+    current_user: UserResponse = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> AccountResponse:
     return AccountService(db).get_current_account(current_user.id)
@@ -51,14 +52,25 @@ def confirm_payment(
     payment_id: uuid.UUID,
     confirmation: PaymentConfirm,
     db: Session = Depends(get_db),
+    current_user: UserResponse = Depends(get_current_user),
     current_account: AccountResponse = Depends(get_current_payment_account),
 ):
+    def password_verifier(
+        account: AccountResponse,
+        password: str,
+    ) -> bool:
+        if account.user_id != current_user.id:
+            return False
+
+        return AuthService(db).verify_user_password(current_user.id, password)
+
     try:
         return payment_service.confirm_payment(
             db=db,
             transaction_id=payment_id,
             sender_account=current_account,
             confirmation=confirmation,
+            password_verifier=password_verifier,
         )
     except payment_service.PaymentServiceError as exc:
         raise _to_http_exception(exc) from exc

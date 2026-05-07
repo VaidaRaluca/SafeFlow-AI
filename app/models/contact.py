@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, text
+from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -17,6 +17,7 @@ class Contact(Base):
 
     __table_args__ = (
         CheckConstraint("sender_id <> receiver_id", name="contacts_no_self_contact"),
+        UniqueConstraint("sender_id", "receiver_id", name="contacts_unique_sender_receiver"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(

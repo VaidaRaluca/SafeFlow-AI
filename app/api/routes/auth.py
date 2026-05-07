@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 
 from app.dependencies.auth import get_current_user
 from app.dependencies.database import get_db
-from app.models.user import User
 from app.schemas.auth import (
     LoginRequest,
     LogoutResponse,
@@ -12,7 +11,7 @@ from app.schemas.auth import (
     RegisterResponse,
     TokenResponse,
 )
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserResponse
 from app.services.auth_service import AuthService
 
 
@@ -49,7 +48,7 @@ def token(
 @router.post("/logout", response_model=LogoutResponse)
 def logout(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: UserResponse = Depends(get_current_user),
 ) -> dict[str, str]:
     _ = current_user
     return AuthService(db).logout()

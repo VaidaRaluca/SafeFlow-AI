@@ -4,8 +4,8 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
-from app.models.transaction import Transaction
 from app.repositories.transaction_repository import TransactionRepository
+from app.schemas.transaction import TransactionResponse
 
 
 NIGHT_START_HOUR = 22
@@ -68,19 +68,21 @@ class AnomalyFeatureService:
             for transaction in safe_transactions
         ]
 
-    def build_feature_row(self, transaction: Transaction) -> dict[str, float]:
+    def build_feature_row(self, transaction: TransactionResponse) -> dict[str, float]:
 
         sender_id = transaction.sender_id
         receiver_id = transaction.receiver_id
         amount = transaction.amount
 
         sender_statistics = self.transaction_repository.get_sender_transaction_statistics(
-            sender_id
+            sender_account_id=sender_id,
+            exclude_transaction_id=transaction.id,
         )
 
         sender_median_amount = (
             self.transaction_repository.get_sender_median_transaction_amount(
-                sender_id
+                sender_account_id=sender_id,
+                exclude_transaction_id=transaction.id,
             )
         )
 
@@ -88,6 +90,7 @@ class AnomalyFeatureService:
             self.transaction_repository.get_previous_transactions_to_receiver_for_features(
                 sender_id,
                 receiver_id,
+                exclude_transaction_id=transaction.id,
             )
         )
 
@@ -95,6 +98,7 @@ class AnomalyFeatureService:
             self.transaction_repository.get_days_since_last_transaction_to_receiver(
                 sender_id,
                 receiver_id,
+                exclude_transaction_id=transaction.id,
             )
         )
 
@@ -103,11 +107,15 @@ class AnomalyFeatureService:
                 sender_id,
                 receiver_id,
                 SMALL_TRANSFER_THRESHOLD,
+                exclude_transaction_id=transaction.id,
             )
         )
 
         sender_safe_transaction_count = (
-            self.transaction_repository.get_sender_safe_transaction_count(sender_id)
+            self.transaction_repository.get_sender_safe_transaction_count(
+                sender_account_id=sender_id,
+                exclude_transaction_id=transaction.id,
+            )
         )
 
         avg_amount = sender_statistics["avg_amount"] or Decimal("0.00")

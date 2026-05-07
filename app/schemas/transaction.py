@@ -2,13 +2,13 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
-from app.models.enums import CurrencyCode, TransactionStatus
+from app.core.enums import CurrencyCode, TransactionStatus
 from app.schemas.risk import RiskAssessmentResponse
 
 
-class TransactionResponse(BaseModel): # Sends basic transaction data for transaction history lists.
+class TransactionResponse(BaseModel):
     id: uuid.UUID
     sender_id: uuid.UUID
     receiver_id: uuid.UUID
@@ -22,13 +22,13 @@ class TransactionResponse(BaseModel): # Sends basic transaction data for transac
     requires_password_confirmation: bool
 
     model_config = {
-        "from_attributes": True
+        "from_attributes": True,
     }
 
 
-class TransactionDetailResponse(TransactionResponse): # Sends full transaction data, including risk assessment details.
+class TransactionDetailResponse(TransactionResponse):
     risk_assessment: RiskAssessmentResponse | None = None
 
 
-class TransactionListResponse(BaseModel): # Wraps multiple transactions into one response for /api/transactions/me
+class TransactionListResponse(BaseModel):
     transactions: list[TransactionResponse]

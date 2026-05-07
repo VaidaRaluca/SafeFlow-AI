@@ -55,7 +55,17 @@ class AuthService:
 
     def login(self, payload: LoginRequest) -> TokenResponse:
         user = self.user_repository.get_user_by_email(str(payload.email))
-        if user is None or not verify_password(payload.password, user.password_hash):
+        password_hash = self.user_repository.get_password_hash_by_email(
+            str(payload.email),
+        )
+        if user is None or password_hash is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid email or password.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        if not verify_password(payload.password, password_hash):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password.",
@@ -63,6 +73,13 @@ class AuthService:
             )
 
         return self._tokens_for_user(str(user.id))
+
+    def verify_user_password(self, user_id: UUID, password: str) -> bool:
+        password_hash = self.user_repository.get_password_hash_by_id(user_id)
+        if password_hash is None:
+            return False
+
+        return verify_password(password, password_hash)
 
     def logout(self) -> dict[str, str]:
         return {"message": "Logged out successfully."}

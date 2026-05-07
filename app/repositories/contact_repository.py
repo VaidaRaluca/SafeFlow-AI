@@ -8,6 +8,12 @@ from app.models.enums import TransactionStatus
 from app.models.transaction import Transaction
 
 
+SAFE_CONTACT_STATUSES: tuple[TransactionStatus, ...] = (
+    TransactionStatus.APPROVED,
+    TransactionStatus.SETTLED,
+)
+
+
 class ContactRepository:
 
     @staticmethod
@@ -15,8 +21,20 @@ class ContactRepository:
         db: Session,
         sender_id: uuid.UUID,
         receiver_id: uuid.UUID,
+    ) -> bool:
+        """Return True when a contact row exists for (sender_id, receiver_id)."""
+        return db.scalar(
+            select(Contact.id)
+            .where(Contact.sender_id == sender_id)
+            .where(Contact.receiver_id == receiver_id)
+        ) is not None
+
+    @staticmethod
+    def _get_contact_model(
+        db: Session,
+        sender_id: uuid.UUID,
+        receiver_id: uuid.UUID,
     ) -> Contact | None:
-        """Return the contact row for (sender_id, receiver_id), or None if not found."""
         return db.scalar(
             select(Contact)
             .where(Contact.sender_id == sender_id)
@@ -28,8 +46,12 @@ class ContactRepository:
         db: Session,
         sender_id: uuid.UUID,
         receiver_id: uuid.UUID,
-    ) -> Contact:
+    ) -> bool:
         """Insert a new contact row with is_trusted=False. Caller owns the commit."""
+        existing_contact = ContactRepository._get_contact_model(db, sender_id, receiver_id)
+        if existing_contact is not None:
+            return False
+
         contact = Contact(
             sender_id=sender_id,
             receiver_id=receiver_id,
@@ -37,7 +59,7 @@ class ContactRepository:
         )
         db.add(contact)
         db.flush()
-        return contact
+        return True
 
     @staticmethod
     def is_receiver_trusted(
@@ -46,7 +68,7 @@ class ContactRepository:
         receiver_id: uuid.UUID,
     ) -> bool:
         """Return True if the contact exists and is marked trusted, otherwise False."""
-        contact = ContactRepository.get_contact(db, sender_id, receiver_id)
+        contact = ContactRepository._get_contact_model(db, sender_id, receiver_id)
         if contact is None:
             return False
         return contact.is_trusted
@@ -57,14 +79,14 @@ class ContactRepository:
         sender_id: uuid.UUID,
         receiver_id: uuid.UUID,
         trusted: bool,
-    ) -> Contact | None:
-        """Set is_trusted on the contact row. Returns None if the contact does not exist."""
-        contact = ContactRepository.get_contact(db, sender_id, receiver_id)
+    ) -> bool:
+        """Set is_trusted on the contact row. Returns False if it does not exist."""
+        contact = ContactRepository._get_contact_model(db, sender_id, receiver_id)
         if contact is None:
-            return None
+            return False
         contact.is_trusted = trusted
         db.flush()
-        return contact
+        return True
 
     @staticmethod
     def count_approved_transactions_between_accounts(
@@ -72,15 +94,15 @@ class ContactRepository:
         sender_id: uuid.UUID,
         receiver_id: uuid.UUID,
     ) -> int:
-        """Count APPROVED transactions in either direction between these two accounts.
+        """Count safe APPROVED/SETTLED transactions between these accounts.
 
-        Used by the gradual trust-building rule to determine whether the pair
-        has enough approved history to justify lowering the risk score.
+        Used to determine whether the pair has enough safe history to mark the
+        beneficiary trusted.
         """
         result = db.scalar(
             select(func.count())
             .select_from(Transaction)
-            .where(Transaction.status == TransactionStatus.APPROVED)
+            .where(Transaction.status.in_(SAFE_CONTACT_STATUSES))
             .where(
                 or_(
                     (Transaction.sender_id == sender_id)

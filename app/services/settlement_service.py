@@ -1,14 +1,18 @@
 from datetime import datetime, timezone
+from uuid import UUID
 
 from sqlalchemy.orm import Session
 
 from app.repositories import account_repository, transaction_repository
+from app.repositories.contact_repository import ContactRepository
+from app.repositories.transaction_repository import TransactionRepository
 from app.schemas.transaction import TransactionDetailResponse
 
 
 APPROVED_STATUS = "APPROVED"
 WARNED_STATUS = "WARNED"
 SETTLED_STATUS = "SETTLED"
+TRUSTED_SAFE_TRANSACTION_THRESHOLD = 3
 
 
 class SettlementError(Exception):
@@ -38,15 +42,14 @@ def settle_transaction(
         )
 
     settled_at = datetime.now(timezone.utc)
+    account_repo = account_repository.AccountRepository(db)
 
     try:
-        account_repository.decrease_balance(
-            db=db,
+        account_repo.decrease_balance(
             account_id=transaction.sender_id,
             amount=transaction.amount,
         )
-        account_repository.increase_balance(
-            db=db,
+        account_repo.increase_balance(
             account_id=transaction.receiver_id,
             amount=transaction.amount,
         )
@@ -71,7 +74,40 @@ def settle_transaction(
     if settled_transaction is None:
         raise SettlementInvalidStatusError("Transaction was not found.")
 
-    return settled_transaction
+    _update_contact_trust_after_settlement(
+        db=db,
+        sender_id=transaction.sender_id,
+        receiver_id=transaction.receiver_id,
+    )
+
+    detailed_transaction = TransactionRepository(db).get_transaction_details(
+        transaction.id,
+    )
+
+    if detailed_transaction is None:
+        raise SettlementInvalidStatusError("Transaction was not found.")
+
+    return detailed_transaction
+
+
+def _update_contact_trust_after_settlement(
+    db: Session,
+    sender_id: UUID,
+    receiver_id: UUID,
+) -> None:
+    safe_transaction_count = ContactRepository.count_approved_transactions_between_accounts(
+        db=db,
+        sender_id=sender_id,
+        receiver_id=receiver_id,
+    )
+
+    if safe_transaction_count >= TRUSTED_SAFE_TRANSACTION_THRESHOLD:
+        ContactRepository.update_trusted_status(
+            db=db,
+            sender_id=sender_id,
+            receiver_id=receiver_id,
+            trusted=True,
+        )
 
 
 def _enum_value(value: object) -> str:
