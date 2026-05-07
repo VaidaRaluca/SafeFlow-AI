@@ -14,7 +14,6 @@ from app.schemas.transaction import TransactionDetailResponse
 from app.services import risk_service, settlement_service
 
 
-APPROVED_STATUS = "APPROVED"
 WARNED_STATUS = "WARNED"
 SETTLED_STATUS = "SETTLED"
 CANCELED_STATUS = "CANCELED"
@@ -106,6 +105,9 @@ def create_payment(
         )
         db.commit()
         return transaction
+    except settlement_service.SettlementError as exc:
+        db.rollback()
+        raise PaymentConflictError(str(exc)) from exc
     except SQLAlchemyError as exc:
         db.rollback()
         raise PaymentValidationError(
@@ -135,17 +137,16 @@ def confirm_payment(
 
     status = _enum_value(transaction.status)
 
-    if status not in {APPROVED_STATUS, WARNED_STATUS}:
+    if status != WARNED_STATUS:
         raise PaymentConflictError(
-            "Only approved or warned payments can be confirmed."
+            "Only warned payments can be confirmed."
         )
 
-    if status == WARNED_STATUS:
-        _verify_warned_payment_password(
-            sender_account=sender_account,
-            confirmation=confirmation,
-            password_verifier=password_verifier,
-        )
+    _verify_warned_payment_password(
+        sender_account=sender_account,
+        confirmation=confirmation,
+        password_verifier=password_verifier,
+    )
 
     try:
         settled_transaction = settlement_service.settle_transaction(
@@ -322,6 +323,13 @@ def _apply_risk_level(
             db=db,
             transaction_id=transaction.id,
             requires_password_confirmation=False,
+        )
+        if updated_transaction is None:
+            raise PaymentNotFoundError("Payment was not found.")
+
+        return settlement_service.settle_transaction(
+            db=db,
+            transaction=updated_transaction,
         )
     elif risk_level == MEDIUM_RISK_LEVEL:
         transaction_repository.mark_transaction_as_warned(

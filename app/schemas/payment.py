@@ -7,11 +7,24 @@ from app.core.enums import CurrencyCode
 
 
 class PaymentCreate(BaseModel): # Payment form data sent by the sender: receiver, amount, currency, and description.
-    receiver_id: uuid.UUID | None = None
-    receiver_iban: str | None = Field(default=None, min_length=15, max_length=34)
-    amount: Decimal = Field(gt=0, max_digits=14, decimal_places=2)
+    receiver_id: uuid.UUID | None = Field(
+        default=None,
+    )
+    receiver_iban: str | None = Field(
+        default=None,
+        min_length=15,
+        max_length=34,
+    )
+    amount: Decimal = Field(
+        gt=0,
+        max_digits=14,
+        decimal_places=2,
+    )
     currency: CurrencyCode = CurrencyCode.EUR
-    description: str | None = Field(default=None, max_length=500)
+    description: str | None = Field(
+        default=None,
+        max_length=500,
+    )
 
     @model_validator(mode="after")
     def validate_receiver(self):

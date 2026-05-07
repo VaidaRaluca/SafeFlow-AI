@@ -45,15 +45,9 @@ def main() -> None:
         amount="25.00",
         risk_level=RiskLevel.LOW,
     )
-    assert low_payment["status"] == "APPROVED"
+    assert low_payment["status"] == "SETTLED"
     assert low_payment["risk_assessment"]["risk_level"] == "LOW"
-
-    settled_low = _confirm_payment(
-        client=client,
-        token=sender["access_token"],
-        payment_id=low_payment["id"],
-    )
-    assert settled_low["status"] == "SETTLED"
+    assert low_payment["settled_at"] is not None
 
     medium_payment = _create_payment_with_risk(
         client=client,
@@ -105,14 +99,20 @@ def main() -> None:
     assert pending_payment["status"] == "PENDING"
     assert _cancel_payment(client, sender["access_token"], pending_payment["id"])["status"] == "CANCELED"
 
-    approved_to_cancel = _create_payment_with_risk(
+    auto_settled_to_cancel = _create_payment_with_risk(
         client=client,
         token=sender["access_token"],
         receiver_iban=receiver_account["iban"],
         amount="15.00",
         risk_level=RiskLevel.LOW,
     )
-    assert _cancel_payment(client, sender["access_token"], approved_to_cancel["id"])["status"] == "CANCELED"
+    assert auto_settled_to_cancel["status"] == "SETTLED"
+    settled_cancel_response = client.post(
+        f"/api/payments/{auto_settled_to_cancel['id']}/cancel",
+        json={},
+        headers=_auth_header(sender["access_token"]),
+    )
+    assert settled_cancel_response.status_code == 409
 
     warned_to_cancel = _create_payment_with_risk(
         client=client,
@@ -138,7 +138,7 @@ def main() -> None:
     assert len(receiver_history.json()["transactions"]) >= 6
 
     detail_response = client.get(
-        f"/api/transactions/{settled_low['id']}",
+        f"/api/transactions/{low_payment['id']}",
         headers=_auth_header(sender["access_token"]),
     )
     assert detail_response.status_code == 200
@@ -147,8 +147,8 @@ def main() -> None:
 
     sender_balance = Decimal(_get_account(client, sender["access_token"])["balance"])
     receiver_balance = Decimal(_get_account(client, receiver["access_token"])["balance"])
-    assert sender_balance == Decimal("9940.00")
-    assert receiver_balance == Decimal("60.00")
+    assert sender_balance == Decimal("9925.00")
+    assert receiver_balance == Decimal("75.00")
 
     print("Backend integration checks passed.")
 

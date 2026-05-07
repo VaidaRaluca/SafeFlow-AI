@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.core.enums import CurrencyCode, TransactionStatus
 from app.schemas.risk import RiskAssessmentResponse
@@ -12,7 +12,11 @@ class TransactionResponse(BaseModel):
     id: uuid.UUID
     sender_id: uuid.UUID
     receiver_id: uuid.UUID
-    amount: Decimal
+    amount: Decimal = Field(
+        gt=0,
+        max_digits=14,
+        decimal_places=2,
+    )
     currency: CurrencyCode
     description: str | None
     status: TransactionStatus
@@ -28,6 +32,10 @@ class TransactionResponse(BaseModel):
 
 class TransactionDetailResponse(TransactionResponse):
     risk_assessment: RiskAssessmentResponse | None = None
+
+    model_config = {
+        "from_attributes": True,
+    }
 
 
 class TransactionListResponse(BaseModel):
