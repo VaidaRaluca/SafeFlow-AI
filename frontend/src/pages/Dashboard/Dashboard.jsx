@@ -15,6 +15,40 @@ export default function Dashboard() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState('week');
+  const [cardFrozen, setCardFrozen] = useState(
+    () => localStorage.getItem('safeflow.card.frozen') === '1'
+  );
+  const [modal, setModal] = useState(null); // 'details' | 'settings' | null
+  const [cardSettings, setCardSettings] = useState(() => {
+    try {
+      const raw = localStorage.getItem('safeflow.card.settings');
+      if (raw) return JSON.parse(raw);
+    } catch {
+      // ignore
+    }
+    return {
+      contactless: true,
+      onlinePayments: true,
+      notifications: true,
+      internationalPayments: false,
+    };
+  });
+
+  const toggleFreeze = () => {
+    setCardFrozen((prev) => {
+      const next = !prev;
+      localStorage.setItem('safeflow.card.frozen', next ? '1' : '0');
+      return next;
+    });
+  };
+
+  const updateSetting = (key) => (e) => {
+    setCardSettings((prev) => {
+      const next = { ...prev, [key]: e.target.checked };
+      localStorage.setItem('safeflow.card.settings', JSON.stringify(next));
+      return next;
+    });
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -179,7 +213,13 @@ export default function Dashboard() {
             <button
               type="button"
               className={styles.primaryAction}
-              onClick={() => navigate('/send')}
+              onClick={() => {
+                if (cardFrozen) {
+                  alert('Your card is frozen. Unfreeze it before sending money.');
+                  return;
+                }
+                navigate('/send');
+              }}
             >
               <span className="material-symbols-outlined filled">send</span>
               Send Money
@@ -240,18 +280,31 @@ export default function Dashboard() {
                 <strong>12/28</strong>
               </div>
             </div>
+            {cardFrozen && (
+              <div className={styles.cardFrozenOverlay}>
+                <span className="material-symbols-outlined filled">ac_unit</span>
+                <span>Card Frozen</span>
+              </div>
+            )}
           </div>
           <div className={styles.cardControls}>
-            {[
-              { icon: 'ac_unit', label: 'Freeze' },
-              { icon: 'visibility', label: 'Details' },
-              { icon: 'settings', label: 'Settings' },
-            ].map((c) => (
-              <button key={c.label} type="button">
-                <span className="material-symbols-outlined">{c.icon}</span>
-                <span>{c.label}</span>
-              </button>
-            ))}
+            <button
+              type="button"
+              onClick={toggleFreeze}
+              className={cardFrozen ? styles.cardControlActive : ''}
+              aria-pressed={cardFrozen}
+            >
+              <span className="material-symbols-outlined">ac_unit</span>
+              <span>{cardFrozen ? 'Unfreeze' : 'Freeze'}</span>
+            </button>
+            <button type="button" onClick={() => setModal('details')}>
+              <span className="material-symbols-outlined">visibility</span>
+              <span>Details</span>
+            </button>
+            <button type="button" onClick={() => setModal('settings')}>
+              <span className="material-symbols-outlined">settings</span>
+              <span>Settings</span>
+            </button>
           </div>
         </article>
 
@@ -330,7 +383,99 @@ export default function Dashboard() {
           )}
         </div>
       </section>
+
+      {modal === 'details' && (
+        <Modal title="Card Details" onClose={() => setModal(null)}>
+          <div className={styles.detailsList}>
+            <DetailLine label="Card Number" value={`•••• •••• •••• ${(account?.iban || 'XXXX').slice(-4)}`} />
+            <DetailLine label="Card Holder" value={account?.full_name || '—'} />
+            <DetailLine label="Linked IBAN" value={account?.iban || '—'} mono />
+            <DetailLine label="Currency" value={currency} />
+            <DetailLine label="Expires" value="12/28" />
+            <DetailLine label="CVV" value="•••" />
+            <DetailLine label="Status" value={cardFrozen ? 'Frozen' : 'Active'} />
+          </div>
+        </Modal>
+      )}
+
+      {modal === 'settings' && (
+        <Modal title="Card Settings" onClose={() => setModal(null)}>
+          <div className={styles.settingsList}>
+            <ToggleRow
+              label="Contactless payments"
+              description="Allow tap-to-pay terminals."
+              checked={cardSettings.contactless}
+              onChange={updateSetting('contactless')}
+            />
+            <ToggleRow
+              label="Online payments"
+              description="Authorize purchases on the web."
+              checked={cardSettings.onlinePayments}
+              onChange={updateSetting('onlinePayments')}
+            />
+            <ToggleRow
+              label="International payments"
+              description="Allow transactions outside your home region."
+              checked={cardSettings.internationalPayments}
+              onChange={updateSetting('internationalPayments')}
+            />
+            <ToggleRow
+              label="Push notifications"
+              description="Get alerts for every authorization."
+              checked={cardSettings.notifications}
+              onChange={updateSetting('notifications')}
+            />
+          </div>
+        </Modal>
+      )}
     </div>
+  );
+}
+
+function Modal({ title, onClose, children }) {
+  return (
+    <div
+      className={styles.modalBackdrop}
+      role="dialog"
+      aria-modal="true"
+      onClick={onClose}
+    >
+      <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h3>{title}</h3>
+          <button
+            type="button"
+            className={styles.modalClose}
+            onClick={onClose}
+            aria-label="Close"
+          >
+            <span className="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <div className={styles.modalBody}>{children}</div>
+      </div>
+    </div>
+  );
+}
+
+function DetailLine({ label, value, mono }) {
+  return (
+    <div className={styles.detailLine}>
+      <span>{label}</span>
+      <strong className={mono ? styles.mono : ''}>{value}</strong>
+    </div>
+  );
+}
+
+function ToggleRow({ label, description, checked, onChange }) {
+  return (
+    <label className={styles.toggleRow}>
+      <div>
+        <div className={styles.toggleLabel}>{label}</div>
+        <div className={styles.toggleDescription}>{description}</div>
+      </div>
+      <input type="checkbox" checked={checked} onChange={onChange} />
+    </label>
   );
 }
 
