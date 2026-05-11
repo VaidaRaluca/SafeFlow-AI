@@ -12,6 +12,10 @@ class TransactionResponse(BaseModel):
     id: uuid.UUID
     sender_id: uuid.UUID
     receiver_id: uuid.UUID
+    sender_iban: str | None = None
+    sender_name: str | None = None
+    receiver_iban: str | None = None
+    receiver_name: str | None = None
     amount: Decimal = Field(
         gt=0,
         max_digits=14,

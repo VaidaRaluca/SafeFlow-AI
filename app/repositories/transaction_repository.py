@@ -12,6 +12,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, joinedload
 
 from app.models.enums import CurrencyCode, TransactionStatus
+from app.models.account import Account
 from app.models.transaction import Transaction
 from app.schemas.transaction import TransactionDetailResponse, TransactionResponse
 
@@ -38,6 +39,10 @@ class TransactionRepository:
     def get_transactions_for_account(self, account_id: uuid.UUID) -> list[TransactionResponse]:
         stmt = (
             select(Transaction)
+            .options(
+                joinedload(Transaction.sender).joinedload(Account.user),
+                joinedload(Transaction.receiver).joinedload(Account.user),
+            )
             .where(
                 or_(
                     Transaction.sender_id == account_id,
@@ -53,8 +58,8 @@ class TransactionRepository:
         stmt = (
             select(Transaction)
             .options(
-                joinedload(Transaction.sender),
-                joinedload(Transaction.receiver),
+                joinedload(Transaction.sender).joinedload(Account.user),
+                joinedload(Transaction.receiver).joinedload(Account.user),
                 joinedload(Transaction.risk_assessment),
             )
             .where(Transaction.id == transaction_id)
@@ -388,13 +393,63 @@ def _exclude_transaction(stmt, transaction_id: uuid.UUID | None):
 def _to_transaction_response(
     transaction: Transaction,
 ) -> TransactionResponse:
-    return TransactionResponse.model_validate(transaction)
+    payload = {
+        "id": transaction.id,
+        "sender_id": transaction.sender_id,
+        "receiver_id": transaction.receiver_id,
+        "amount": transaction.amount,
+        "currency": transaction.currency,
+        "description": transaction.description,
+        "status": transaction.status,
+        "created_at": transaction.created_at,
+        "confirmed_at": transaction.confirmed_at,
+        "settled_at": transaction.settled_at,
+        "requires_password_confirmation": transaction.requires_password_confirmation,
+        "sender_iban": _safe_iban(transaction.sender),
+        "sender_name": _safe_party_name(transaction.sender),
+        "receiver_iban": _safe_iban(transaction.receiver),
+        "receiver_name": _safe_party_name(transaction.receiver),
+    }
+    return TransactionResponse.model_validate(payload)
+
+
+def _safe_iban(account: Any | None) -> str | None:
+    if account is None:
+        return None
+    return getattr(account, "iban", None)
+
+
+def _safe_party_name(account: Any | None) -> str | None:
+    if account is None:
+        return None
+    user = getattr(account, "user", None)
+    if user is None:
+        return None
+    return getattr(user, "full_name", None)
 
 
 def _to_transaction_detail_response(
     transaction: Transaction,
 ) -> TransactionDetailResponse:
-    return TransactionDetailResponse.model_validate(transaction)
+    payload = {
+        "id": transaction.id,
+        "sender_id": transaction.sender_id,
+        "receiver_id": transaction.receiver_id,
+        "amount": transaction.amount,
+        "currency": transaction.currency,
+        "description": transaction.description,
+        "status": transaction.status,
+        "created_at": transaction.created_at,
+        "confirmed_at": transaction.confirmed_at,
+        "settled_at": transaction.settled_at,
+        "requires_password_confirmation": transaction.requires_password_confirmation,
+        "sender_iban": _safe_iban(transaction.sender),
+        "sender_name": _safe_party_name(transaction.sender),
+        "receiver_iban": _safe_iban(transaction.receiver),
+        "receiver_name": _safe_party_name(transaction.receiver),
+        "risk_assessment": transaction.risk_assessment,
+    }
+    return TransactionDetailResponse.model_validate(payload)
 
 
 def _get_transaction_for_update(
