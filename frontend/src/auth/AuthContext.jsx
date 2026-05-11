@@ -11,15 +11,13 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       const data = await api.login({ email, password });
-      // login returns TokenResponse (no user); fetch user via account or stored.
       tokenStore.set({
         access_token: data.access_token,
         refresh_token: data.refresh_token,
       });
-      // Decode minimal user from token? Backend doesn't return user here; we keep email.
-      const minimalUser = { email };
-      tokenStore.set({ user: minimalUser });
-      setUser(minimalUser);
+      const currentUser = await api.currentUser();
+      tokenStore.set({ user: currentUser });
+      setUser(currentUser);
       return data;
     } finally {
       setLoading(false);
@@ -53,8 +51,28 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    // No-op: token is already in localStorage
-  }, []);
+    let cancelled = false;
+
+    async function hydrateUser() {
+      if (!tokenStore.getAccess() || user?.full_name) return;
+
+      try {
+        const currentUser = await api.currentUser();
+        if (cancelled) return;
+        tokenStore.set({ user: currentUser });
+        setUser(currentUser);
+      } catch {
+        if (cancelled) return;
+        tokenStore.clear();
+        setUser(null);
+      }
+    }
+
+    hydrateUser();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.full_name]);
 
   const value = { user, isAuthenticated: !!user, login, register, logout, loading };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -64,6 +64,7 @@ export const api = {
     request('/auth/register', { method: 'POST', body: payload, auth: false }),
   login: (payload) =>
     request('/auth/login', { method: 'POST', body: payload, auth: false }),
+  currentUser: () => request('/auth/me'),
   logout: () => request('/auth/logout', { method: 'POST' }),
 
   // Account

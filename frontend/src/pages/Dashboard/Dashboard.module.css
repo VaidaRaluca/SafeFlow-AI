@@ -285,6 +285,14 @@
   color: white;
 }
 
+.cardToneBlue {
+  background: linear-gradient(135deg, #143a74 0%, #07111f 100%);
+}
+
+.cardToneGreen {
+  background: linear-gradient(135deg, #14532d 0%, #111827 100%);
+}
+
 .cardChip {
   width: 36px;
   height: 28px;
@@ -420,6 +428,53 @@
   font-size: 36px;
 }
 
+.cardSelector {
+  display: flex;
+  gap: var(--space-sm);
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.cardSelector button {
+  min-width: 104px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: var(--space-sm);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-container-low);
+  color: var(--color-on-surface);
+  text-align: left;
+  transition: background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.cardSelector button:hover {
+  background-color: var(--color-surface-container-high);
+}
+
+.cardSelector span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-size-label-sm);
+  font-weight: 700;
+}
+
+.cardSelector small {
+  color: var(--color-secondary);
+  font-size: 11px;
+  line-height: 14px;
+}
+
+.cardTabActive {
+  border-color: var(--color-primary) !important;
+  background-color: var(--color-primary-fixed) !important;
+}
+
 /* Modal */
 .modalBackdrop {
   position: fixed;
@@ -491,6 +546,165 @@
 
 .modalBody {
   padding: var(--space-lg);
+}
+
+.addCardForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.field > span {
+  color: var(--color-primary);
+  font-size: var(--font-size-label-lg);
+  font-weight: 700;
+}
+
+.field input {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-container-lowest);
+  color: var(--color-primary);
+  padding: 0 var(--space-md);
+  font-size: var(--font-size-body-md);
+}
+
+.toneGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-sm);
+}
+
+.toneGrid button {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  font-size: var(--font-size-label-sm);
+  font-weight: 700;
+  transition: background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.toneGrid button:hover {
+  background-color: var(--color-surface-container-low);
+}
+
+.toneButtonActive {
+  border-color: var(--color-primary) !important;
+  background-color: var(--color-primary-fixed) !important;
+}
+
+.swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+
+.swatchSlate {
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+}
+
+.swatchBlue {
+  background: linear-gradient(135deg, #2563eb, #07111f);
+}
+
+.swatchGreen {
+  background: linear-gradient(135deg, #16a34a, #111827);
+}
+
+.addCardPreview {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-container-low);
+}
+
+.addCardPreview > span {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.addCardPreview div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.addCardPreview strong {
+  color: var(--color-primary);
+  font-size: var(--font-size-label-lg);
+  line-height: var(--line-height-label-lg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.addCardPreview span:last-child {
+  color: var(--color-secondary);
+  font-size: var(--font-size-label-sm);
+  line-height: var(--line-height-label-sm);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  padding-top: var(--space-sm);
+}
+
+.cancelButton,
+.submitButton {
+  min-height: 44px;
+  padding: 0 var(--space-lg);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-label-lg);
+  font-weight: 700;
+}
+
+.cancelButton {
+  border: 1px solid var(--color-outline-variant);
+  background-color: var(--color-surface-container-lowest);
+  color: var(--color-primary);
+}
+
+.cancelButton:hover {
+  background-color: var(--color-surface-container-low);
+}
+
+.submitButton {
+  border: 1px solid var(--color-primary);
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.submitButton:hover {
+  background-color: var(--color-primary-container);
 }
 
 .detailsList {

@@ -45,6 +45,11 @@ def token(
     )
 
 
+@router.get("/me", response_model=UserResponse)
+def me(current_user: UserResponse = Depends(get_current_user)) -> UserResponse:
+    return current_user
+
+
 @router.post("/logout", response_model=LogoutResponse)
 def logout(
     db: Session = Depends(get_db),

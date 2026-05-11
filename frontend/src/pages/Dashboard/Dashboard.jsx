@@ -1,24 +1,39 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../api/client';
+import { useAuth } from '../../auth/AuthContext.jsx';
 import { formatCurrency, formatDateTime } from '../../utils/format';
 import StatusBadge from '../../components/StatusBadge/StatusBadge.jsx';
 import styles from './Dashboard.module.css';
 
 const POLL_INTERVAL_MS = 5000;
 const DEFAULT_MONTHLY_BUDGET = 10000;
+const CARDS_KEY = 'safeflow.cards';
+const ACTIVE_CARD_KEY = 'safeflow.card.active';
+const PRIMARY_CARD_ID = 'primary';
+const CARD_TONES = [
+  { key: 'Slate', label: 'Classic' },
+  { key: 'Blue', label: 'Blue' },
+  { key: 'Green', label: 'Green' },
+];
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [account, setAccount] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState('week');
-  const [cardFrozen, setCardFrozen] = useState(
+  const [primaryCardFrozen, setPrimaryCardFrozen] = useState(
     () => localStorage.getItem('safeflow.card.frozen') === '1'
   );
-  const [modal, setModal] = useState(null); // 'details' | 'settings' | null
+  const [savedCards, setSavedCards] = useState(readStoredCards);
+  const [activeCardId, setActiveCardId] = useState(
+    () => localStorage.getItem(ACTIVE_CARD_KEY) || PRIMARY_CARD_ID
+  );
+  const [addCardForm, setAddCardForm] = useState(defaultAddCardForm);
+  const [modal, setModal] = useState(null); // 'addCard' | 'details' | 'settings' | null
   const [cardSettings, setCardSettings] = useState(() => {
     try {
       const raw = localStorage.getItem('safeflow.card.settings');
@@ -34,8 +49,62 @@ export default function Dashboard() {
     };
   });
 
+  const holderName = user?.full_name || user?.email || 'Account holder';
+
+  const primaryCard = useMemo(
+    () => ({
+      id: PRIMARY_CARD_ID,
+      label: 'Main card',
+      kind: 'Physical',
+      last4: (account?.iban || 'XXXX').slice(-4),
+      holder: holderName,
+      expires: '12/28',
+      linkedIban: account?.iban || '—',
+      frozen: primaryCardFrozen,
+      tone: 'Slate',
+    }),
+    [account?.iban, holderName, primaryCardFrozen]
+  );
+
+  const cards = useMemo(
+    () => [
+      primaryCard,
+      ...savedCards.map((card) => ({
+        ...card,
+        holder: card.holder || holderName,
+      })),
+    ],
+    [holderName, primaryCard, savedCards]
+  );
+
+  const activeCard = useMemo(
+    () => cards.find((card) => card.id === activeCardId) || cards[0],
+    [activeCardId, cards]
+  );
+
+  const activeCardFrozen = activeCard?.frozen || false;
+
+  const saveCards = (nextCards) => {
+    setSavedCards(nextCards);
+    localStorage.setItem(CARDS_KEY, JSON.stringify(nextCards));
+  };
+
+  const selectCard = (cardId) => {
+    setActiveCardId(cardId);
+    localStorage.setItem(ACTIVE_CARD_KEY, cardId);
+  };
+
   const toggleFreeze = () => {
-    setCardFrozen((prev) => {
+    if (activeCard.id !== PRIMARY_CARD_ID) {
+      saveCards(
+        savedCards.map((card) =>
+          card.id === activeCard.id ? { ...card, frozen: !card.frozen } : card
+        )
+      );
+      return;
+    }
+
+    setPrimaryCardFrozen((prev) => {
       const next = !prev;
       localStorage.setItem('safeflow.card.frozen', next ? '1' : '0');
       return next;
@@ -48,6 +117,28 @@ export default function Dashboard() {
       localStorage.setItem('safeflow.card.settings', JSON.stringify(next));
       return next;
     });
+  };
+
+  const openAddCard = () => {
+    setAddCardForm(defaultAddCardForm());
+    setModal('addCard');
+  };
+
+  const updateAddCardForm = (key) => (event) => {
+    setAddCardForm((prev) => ({ ...prev, [key]: event.target.value }));
+  };
+
+  const addCard = (event) => {
+    event.preventDefault();
+    const nextCard = createCard({
+      label: addCardForm.label.trim() || 'Virtual card',
+      tone: addCardForm.tone,
+      holder: holderName,
+    });
+    const nextCards = [...savedCards, nextCard];
+    saveCards(nextCards);
+    selectCard(nextCard.id);
+    setModal(null);
   };
 
   useEffect(() => {
@@ -214,7 +305,7 @@ export default function Dashboard() {
               type="button"
               className={styles.primaryAction}
               onClick={() => {
-                if (cardFrozen) {
+                if (activeCardFrozen) {
                   alert('Your card is frozen. Unfreeze it before sending money.');
                   return;
                 }
@@ -257,45 +348,70 @@ export default function Dashboard() {
         <article className={styles.cardWidget}>
           <header>
             <h3>My Cards</h3>
-            <button type="button" className={styles.iconBtnSmall} aria-label="Add card">
+            <button
+              type="button"
+              className={styles.iconBtnSmall}
+              aria-label="Add card"
+              onClick={openAddCard}
+            >
               <span className="material-symbols-outlined">add</span>
             </button>
           </header>
-          <div className={styles.creditCard}>
+          <div
+            className={`${styles.creditCard} ${
+              styles[`cardTone${activeCard.tone}`] || ''
+            }`}
+          >
             <div className={styles.cardChip} />
             <div className={styles.cardLogo}>
               <span />
               <span />
             </div>
             <div className={styles.cardNumber}>
-              •••• •••• •••• {(account?.iban || 'XXXX').slice(-4)}
+              •••• •••• •••• {activeCard.last4}
             </div>
             <div className={styles.cardFooter}>
               <div>
                 <p>Card Holder</p>
-                <strong>{account ? truncateName(account) : '—'}</strong>
+                <strong>{truncateText(activeCard.holder)}</strong>
               </div>
               <div>
                 <p>Expires</p>
-                <strong>12/28</strong>
+                <strong>{activeCard.expires}</strong>
               </div>
             </div>
-            {cardFrozen && (
+            {activeCardFrozen && (
               <div className={styles.cardFrozenOverlay}>
                 <span className="material-symbols-outlined filled">ac_unit</span>
                 <span>Card Frozen</span>
               </div>
             )}
           </div>
+          {cards.length > 1 && (
+            <div className={styles.cardSelector} aria-label="Select card">
+              {cards.map((card) => (
+                <button
+                  key={card.id}
+                  type="button"
+                  className={card.id === activeCard.id ? styles.cardTabActive : ''}
+                  aria-pressed={card.id === activeCard.id}
+                  onClick={() => selectCard(card.id)}
+                >
+                  <span>{card.label}</span>
+                  <small>••{card.last4}</small>
+                </button>
+              ))}
+            </div>
+          )}
           <div className={styles.cardControls}>
             <button
               type="button"
               onClick={toggleFreeze}
-              className={cardFrozen ? styles.cardControlActive : ''}
-              aria-pressed={cardFrozen}
+              className={activeCardFrozen ? styles.cardControlActive : ''}
+              aria-pressed={activeCardFrozen}
             >
               <span className="material-symbols-outlined">ac_unit</span>
-              <span>{cardFrozen ? 'Unfreeze' : 'Freeze'}</span>
+              <span>{activeCardFrozen ? 'Unfreeze' : 'Freeze'}</span>
             </button>
             <button type="button" onClick={() => setModal('details')}>
               <span className="material-symbols-outlined">visibility</span>
@@ -384,16 +500,78 @@ export default function Dashboard() {
         </div>
       </section>
 
+      {modal === 'addCard' && (
+        <Modal title="Add Card" onClose={() => setModal(null)}>
+          <form className={styles.addCardForm} onSubmit={addCard}>
+            <label className={styles.field}>
+              <span>Card name</span>
+              <input
+                type="text"
+                value={addCardForm.label}
+                onChange={updateAddCardForm('label')}
+                maxLength={28}
+                autoFocus
+              />
+            </label>
+
+            <div className={styles.field}>
+              <span>Card style</span>
+              <div className={styles.toneGrid}>
+                {CARD_TONES.map((tone) => (
+                  <button
+                    key={tone.key}
+                    type="button"
+                    className={
+                      addCardForm.tone === tone.key ? styles.toneButtonActive : ''
+                    }
+                    aria-pressed={addCardForm.tone === tone.key}
+                    onClick={() =>
+                      setAddCardForm((prev) => ({ ...prev, tone: tone.key }))
+                    }
+                  >
+                    <span className={`${styles.swatch} ${styles[`swatch${tone.key}`]}`} />
+                    {tone.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.addCardPreview}>
+              <span className="material-symbols-outlined">credit_card</span>
+              <div>
+                <strong>{addCardForm.label.trim() || 'Virtual card'}</strong>
+                <span>Virtual card · issued instantly</span>
+              </div>
+            </div>
+
+            <div className={styles.modalActions}>
+              <button
+                type="button"
+                className={styles.cancelButton}
+                onClick={() => setModal(null)}
+              >
+                Cancel
+              </button>
+              <button type="submit" className={styles.submitButton}>
+                Add Card
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
       {modal === 'details' && (
         <Modal title="Card Details" onClose={() => setModal(null)}>
           <div className={styles.detailsList}>
-            <DetailLine label="Card Number" value={`•••• •••• •••• ${(account?.iban || 'XXXX').slice(-4)}`} />
-            <DetailLine label="Card Holder" value={account?.full_name || '—'} />
-            <DetailLine label="Linked IBAN" value={account?.iban || '—'} mono />
+            <DetailLine label="Card Name" value={activeCard.label} />
+            <DetailLine label="Card Type" value={activeCard.kind} />
+            <DetailLine label="Card Number" value={`•••• •••• •••• ${activeCard.last4}`} />
+            <DetailLine label="Card Holder" value={activeCard.holder || '—'} />
+            <DetailLine label="Linked IBAN" value={activeCard.linkedIban || 'Virtual card'} mono />
             <DetailLine label="Currency" value={currency} />
-            <DetailLine label="Expires" value="12/28" />
+            <DetailLine label="Expires" value={activeCard.expires} />
             <DetailLine label="CVV" value="•••" />
-            <DetailLine label="Status" value={cardFrozen ? 'Frozen' : 'Active'} />
+            <DetailLine label="Status" value={activeCardFrozen ? 'Frozen' : 'Active'} />
           </div>
         </Modal>
       )}
@@ -479,8 +657,48 @@ function ToggleRow({ label, description, checked, onChange }) {
   );
 }
 
-function truncateName(account) {
-  return (account.full_name || account.email || 'Account').toString().slice(0, 22);
+function readStoredCards() {
+  try {
+    const raw = localStorage.getItem(CARDS_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function defaultAddCardForm() {
+  return { label: 'Virtual card', tone: 'Blue' };
+}
+
+function createCard({ label, tone, holder }) {
+  return {
+    id: `card-${Date.now()}`,
+    label,
+    kind: 'Virtual',
+    last4: randomLast4(),
+    holder,
+    expires: futureExpiry(),
+    linkedIban: '',
+    frozen: false,
+    tone,
+  };
+}
+
+function futureExpiry() {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const year = String((now.getFullYear() + 4) % 100).padStart(2, '0');
+  return `${month}/${year}`;
+}
+
+function randomLast4() {
+  return String(Math.floor(1000 + Math.random() * 9000));
+}
+
+function truncateText(value, maxLength = 22) {
+  const text = (value || 'Account').toString();
+  return text.length > maxLength ? `${text.slice(0, maxLength - 1)}…` : text;
 }
 
 function TransactionRow({ tx, accountId, currency }) {
