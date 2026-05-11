@@ -6,7 +6,7 @@
   justify-content: center;
   padding: var(--space-xl) var(--space-container-margin);
   gap: var(--space-xl);
-  background-color: var(--color-background);
+  background-color: #fafafc;
 }
 
 .header {
@@ -21,35 +21,36 @@
   width: 64px;
   height: 64px;
   border-radius: var(--radius-full);
-  background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
+  background-color: var(--color-eval-accent-soft);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-primary);
+  color: var(--color-eval-accent);
+  position: relative;
   animation: pulseRing 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
 }
 
 .shieldWrap .material-symbols-outlined {
-  font-size: 32px;
+  font-size: 30px;
 }
 
 @keyframes pulseRing {
   0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 40%, transparent);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-eval-accent) 35%, transparent);
   }
   70% {
-    box-shadow: 0 0 0 14px color-mix(in srgb, var(--color-primary) 0%, transparent);
+    box-shadow: 0 0 0 14px color-mix(in srgb, var(--color-eval-accent) 0%, transparent);
   }
   100% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 0%, transparent);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-eval-accent) 0%, transparent);
   }
 }
 
 .title {
   font-size: var(--font-size-headline-lg);
-  font-weight: var(--font-weight-headline);
+  font-weight: 700;
   letter-spacing: var(--letter-spacing-headline);
-  color: var(--color-primary);
+  color: #1a1f36;
   margin: 0;
 }
 
@@ -58,11 +59,11 @@
   align-items: center;
   gap: var(--space-xs);
   padding: var(--space-xs) var(--space-md);
-  background-color: var(--color-surface-container);
-  color: var(--color-secondary);
+  background-color: #eef2f6;
+  color: #6b7280;
   font-size: var(--font-size-label-sm);
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   border-radius: var(--radius-full);
 }
 
@@ -70,7 +71,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: var(--color-secondary);
+  background-color: #9ca3af;
   animation: pulseDot 1.5s infinite;
 }
 
@@ -92,6 +93,115 @@
   font-weight: 600;
 }
 
+/* Summary card */
+.summary {
+  width: 100%;
+  max-width: 880px;
+  background-color: #ffffff;
+  border: 1px solid #f3f4f6;
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.06);
+}
+
+@media (min-width: 720px) {
+  .summary {
+    flex-direction: row;
+    align-items: stretch;
+  }
+}
+
+.summaryAccent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: var(--color-eval-accent);
+}
+
+.summaryLeft,
+.summaryRight {
+  flex: 1;
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.summaryRight {
+  text-align: right;
+  align-items: flex-end;
+  background-color: rgba(249, 250, 251, 0.5);
+}
+
+@media (min-width: 720px) {
+  .summaryRight {
+    border-left: 1px solid #f3f4f6;
+    background-color: transparent;
+  }
+}
+
+.summaryLabel {
+  margin: 0 0 var(--space-sm);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.summaryReceiver {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.receiverAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-eval-accent-soft);
+  color: var(--color-eval-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.summaryReceiver h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1f36;
+  line-height: 1.2;
+}
+
+.summaryReceiver p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.summaryAmount {
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #1a1f36;
+  line-height: 1.1;
+}
+
+.summarySub {
+  margin: var(--space-xs) 0 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-eval-accent);
+}
+
+/* Progress panels */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -102,11 +212,12 @@
 
 .panel,
 .panelCenter {
-  background-color: var(--color-surface-container-lowest);
-  border: 1px solid color-mix(in srgb, var(--color-outline-variant) 40%, transparent);
+  background-color: #ffffff;
+  border: 1px solid #f3f4f6;
   border-radius: var(--radius-xl);
   padding: var(--space-lg);
-  box-shadow: var(--shadow-ambient-soft);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05),
+    0 2px 4px -1px rgba(0, 0, 0, 0.03);
 }
 
 .panel {
@@ -119,19 +230,21 @@
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  color: var(--color-primary);
+  color: var(--color-eval-accent);
 }
 
 .panelHeader h3 {
   margin: 0;
-  font-size: var(--font-size-label-lg);
-  font-weight: var(--font-weight-label-lg);
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1f36;
+  flex: 1;
 }
 
 .percent {
-  margin-left: auto;
-  font-size: var(--font-size-label-sm);
-  color: var(--color-secondary);
+  font-size: 14px;
+  color: #4b5563;
+  font-weight: 500;
 }
 
 .panelCenter {
@@ -144,33 +257,55 @@
 
 .panelCenter h3 {
   margin: 0;
-  color: var(--color-primary);
-  font-size: var(--font-size-label-lg);
-  font-weight: var(--font-weight-label-lg);
+  color: #1a1f36;
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .panelCenter p {
   margin: 0;
-  color: var(--color-secondary);
-  font-size: var(--font-size-label-sm);
+  color: #6b7280;
+  font-size: 12px;
   max-width: 220px;
+  line-height: 1.5;
 }
 
 .spinner {
-  width: 88px;
-  height: 88px;
-  border-radius: var(--radius-full);
-  border: 3px solid color-mix(in srgb, var(--color-primary) 12%, transparent);
-  border-top-color: var(--color-primary);
+  width: 96px;
+  height: 96px;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-primary);
-  animation: spinSlow 2.4s linear infinite;
+  margin-bottom: var(--space-sm);
 }
 
-.spinner .material-symbols-outlined {
-  font-size: 28px;
+.spinnerSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  animation: spinSlow 3s linear infinite;
+}
+
+.spinnerTrack {
+  stroke: #f3f4f6;
+  stroke-width: 3;
+}
+
+.spinnerProgress {
+  stroke: var(--color-eval-accent);
+  stroke-width: 3;
+}
+
+.spinner > .material-symbols-outlined {
+  font-size: 24px;
+  color: var(--color-eval-accent);
+  background: white;
+  border-radius: 50%;
+  padding: 8px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  z-index: 1;
 }
 
 @keyframes spinSlow {
@@ -188,42 +323,71 @@
 .progressLabels {
   display: flex;
   justify-content: space-between;
-  font-size: var(--font-size-label-sm);
+  font-size: 12px;
   font-weight: 600;
 }
 
 .label {
-  color: var(--color-secondary);
+  color: #6b7280;
 }
 
 .labelDone {
-  color: var(--color-primary);
+  color: #1a1f36;
 }
 
 .statusDone {
-  color: var(--color-success);
+  color: var(--color-eval-accent);
 }
 
 .statusPending {
-  color: var(--color-secondary);
+  color: #9ca3af;
 }
 
 .progressTrack {
   height: 6px;
-  background-color: var(--color-surface-container-high);
+  background-color: #f3f4f6;
   border-radius: var(--radius-full);
   overflow: hidden;
 }
 
 .progressFill {
   height: 100%;
-  background-color: var(--color-primary);
+  background-color: var(--color-eval-accent);
   transition: width 0.3s ease;
 }
 
+/* Actions */
+.actions {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.btnGhost {
+  padding: 10px 20px;
+  background-color: var(--color-eval-accent-track);
+  border: none;
+  border-radius: var(--radius-lg);
+  color: #4b5563;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.btnGhost:hover {
+  background-color: #d1d5db;
+}
+
+.btnGhost .material-symbols-outlined {
+  font-size: 18px;
+}
+
 .footer {
-  color: var(--color-secondary);
-  font-size: var(--font-size-label-sm);
+  color: #6b7280;
+  font-size: 12px;
   text-align: center;
   max-width: 480px;
+  line-height: 1.6;
 }

@@ -54,6 +54,11 @@
   --color-warning-container: #fef3c7;
   --color-on-warning-container: #92400e;
 
+  /* Evaluation accent — bright trust blue per design screen */
+  --color-eval-accent: #0b4ed3;
+  --color-eval-accent-soft: #f0f4ff;
+  --color-eval-accent-track: #e6e8f0;
+
   --color-background: #fcf8fb;
   --color-on-background: #1b1b1d;
 

@@ -46,6 +46,26 @@ export default function Register() {
   return (
     <section className={`${styles.page} ${styles.pageReverse}`}>
       <aside className={`${styles.brand} ${styles.brandReverse}`}>
+        <div className={styles.brandDecor} aria-hidden="true">
+          <svg viewBox="0 0 600 800" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <linearGradient id="regCurve" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#ffffff" stopOpacity="0.7" />
+                <stop offset="100%" stopColor="#ffffff" stopOpacity="0.05" />
+              </linearGradient>
+            </defs>
+            <path d="M-100 120 Q 300 60 700 160 L 700 200 Q 300 110 -100 200 Z" fill="url(#regCurve)" />
+            <path d="M-100 260 Q 300 200 700 320 L 700 360 Q 300 250 -100 360 Z" fill="url(#regCurve)" opacity="0.75" />
+            <path d="M-100 420 Q 300 340 700 460 L 700 500 Q 300 400 -100 500 Z" fill="url(#regCurve)" opacity="0.6" />
+            <path d="M-100 560 Q 300 480 700 600 L 700 640 Q 300 540 -100 640 Z" fill="url(#regCurve)" opacity="0.45" />
+            <path d="M-100 700 Q 300 620 700 720 L 700 760 Q 300 660 -100 760 Z" fill="url(#regCurve)" opacity="0.3" />
+          </svg>
+        </div>
+        <div className={styles.brandDots}>
+          {Array.from({ length: 24 }).map((_, i) => (
+            <span key={i} />
+          ))}
+        </div>
         <div className={styles.brandTop}>
           <span className={`material-symbols-outlined filled ${styles.brandIcon}`}>
             security

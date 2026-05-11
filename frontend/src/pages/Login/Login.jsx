@@ -29,6 +29,20 @@ export default function Login() {
   return (
     <section className={styles.page}>
       <aside className={styles.brand}>
+        <div className={styles.brandDecor} aria-hidden="true">
+          <svg viewBox="0 0 600 800" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <linearGradient id="loginCurve" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#ffffff" stopOpacity="0.85" />
+                <stop offset="100%" stopColor="#ffffff" stopOpacity="0.05" />
+              </linearGradient>
+            </defs>
+            <path d="M-100 200 Q 300 60 700 220 L 700 260 Q 300 110 -100 260 Z" fill="url(#loginCurve)" />
+            <path d="M-100 360 Q 300 220 700 380 L 700 420 Q 300 280 -100 420 Z" fill="url(#loginCurve)" opacity="0.7" />
+            <path d="M-100 520 Q 300 400 700 540 L 700 580 Q 300 460 -100 580 Z" fill="url(#loginCurve)" opacity="0.55" />
+            <path d="M-100 640 Q 300 540 700 660 L 700 700 Q 300 580 -100 700 Z" fill="url(#loginCurve)" opacity="0.4" />
+          </svg>
+        </div>
         <div className={styles.brandTop}>
           <span className={`material-symbols-outlined filled ${styles.brandIcon}`}>
             security

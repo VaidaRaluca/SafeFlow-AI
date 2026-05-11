@@ -5,49 +5,35 @@
 }
 
 .sidebar {
-  width: 264px;
+  width: 256px;
   flex-shrink: 0;
   position: sticky;
   top: 0;
   height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   padding: var(--space-lg);
   background-color: var(--color-surface-container-low);
   border-right: 1px solid var(--color-outline-variant);
   overflow-y: auto;
 }
 
-.brand {
+.sidebarHeader {
   display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-lg);
-}
-
-.brandIcon {
-  color: var(--color-primary);
-  font-size: 28px;
-}
-
-.brandName {
-  font-size: var(--font-size-headline-md);
-  font-weight: var(--font-weight-headline);
-  letter-spacing: var(--letter-spacing-headline);
-  color: var(--color-primary);
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
 }
 
 .profile {
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  margin-bottom: var(--space-md);
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-full);
   background-color: var(--color-primary);
   color: var(--color-on-primary);
@@ -55,38 +41,53 @@
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.profileText {
+  min-width: 0;
 }
 
 .profileName {
   font-size: var(--font-size-label-lg);
-  font-weight: var(--font-weight-label-lg);
+  font-weight: 700;
   color: var(--color-primary);
   line-height: var(--line-height-label-lg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
 }
 
 .profileMeta {
   font-size: var(--font-size-label-sm);
   color: var(--color-on-surface-variant);
   line-height: var(--line-height-label-sm);
-  word-break: break-all;
 }
 
-.secureBadge {
+.secureBtn {
+  width: 100%;
   display: inline-flex;
   align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-xs) var(--space-md);
-  border-radius: var(--radius-full);
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
   background-color: var(--color-secondary-container);
   color: var(--color-on-secondary-container);
-  font-size: var(--font-size-label-sm);
-  font-weight: var(--font-weight-label-sm);
-  margin-bottom: var(--space-xl);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-label-lg);
+  font-weight: var(--font-weight-label-lg);
+  transition: background-color var(--transition-fast);
 }
 
-.secureBadge .material-symbols-outlined {
-  font-size: 16px;
+.secureBtn:hover {
+  background-color: var(--color-surface-container-highest);
+}
+
+.secureBtn .material-symbols-outlined {
+  font-size: 18px;
 }
 
 .navList {
@@ -135,9 +136,19 @@
   font-weight: 700;
 }
 
+.navLinkActive .navIcon {
+  font-variation-settings: 'FILL' 1;
+}
+
 .main {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
@@ -150,8 +161,6 @@
     width: 100%;
     height: auto;
     position: static;
-    flex-direction: column;
-    gap: var(--space-md);
     border-right: none;
     border-bottom: 1px solid var(--color-outline-variant);
   }
@@ -162,5 +171,8 @@
   .navLink {
     flex: 1 1 auto;
     justify-content: center;
+  }
+  .profileName {
+    max-width: none;
   }
 }

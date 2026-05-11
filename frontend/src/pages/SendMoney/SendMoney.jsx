@@ -72,7 +72,6 @@ export default function SendMoney() {
   return (
     <div className={styles.page}>
       <div className={styles.headerBlock}>
-        <h1 className={styles.title}>Send Money</h1>
         <p className={styles.subtitle}>
           Securely transfer funds. Every transaction is monitored.
         </p>

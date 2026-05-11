@@ -1,6 +1,6 @@
 .page {
   flex: 1;
-  padding: var(--space-xl) var(--space-container-margin);
+  padding: 0 var(--space-container-margin) var(--space-xl);
   max-width: 1100px;
   margin: 0 auto;
   width: 100%;
@@ -85,7 +85,7 @@
 
 .row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-md);
   padding: var(--space-md);
@@ -134,11 +134,28 @@
   font-size: var(--font-size-label-lg);
   font-weight: var(--font-weight-label-lg);
   color: var(--color-primary);
+  word-break: break-word;
+}
+
+.partyBlock {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.iban {
+  font-family: var(--font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: var(--font-size-label-sm);
+  font-weight: 500;
+  color: var(--color-on-surface-variant);
+  word-break: break-all;
 }
 
 .meta {
   font-size: var(--font-size-body-md);
   color: var(--color-secondary);
+  word-break: break-word;
 }
 
 .right {

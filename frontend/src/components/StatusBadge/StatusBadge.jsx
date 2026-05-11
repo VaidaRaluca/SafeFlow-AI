@@ -9,12 +9,22 @@ const STATUS_META = {
   REJECTED: { label: 'Rejected', tone: 'rejected', icon: 'block' },
 };
 
-export default function StatusBadge({ status }) {
-  const meta = STATUS_META[status] || {
-    label: status || 'Unknown',
-    tone: 'pending',
-    icon: 'help',
-  };
+const WARNED_CONFIRMED_META = {
+  label: 'Warned · Confirmed',
+  tone: 'warnedConfirmed',
+  icon: 'verified',
+};
+
+export default function StatusBadge({ status, wasWarned = false }) {
+  const upper = String(status || '').toUpperCase();
+  const meta =
+    wasWarned && upper === 'SETTLED'
+      ? WARNED_CONFIRMED_META
+      : STATUS_META[upper] || {
+          label: status || 'Unknown',
+          tone: 'pending',
+          icon: 'help',
+        };
   return (
     <span className={`${styles.badge} ${styles[meta.tone]}`}>
       <span className="material-symbols-outlined">{meta.icon}</span>

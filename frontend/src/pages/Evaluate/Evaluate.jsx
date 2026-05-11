@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../../api/client';
+import { formatCurrency } from '../../utils/format';
 import styles from './Evaluate.module.css';
 
-const MIN_DURATION_MS = 1800;
+const MIN_DURATION_MS = 2200;
 
 export default function Evaluate() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [tx, setTx] = useState(null);
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(15);
 
@@ -21,13 +23,14 @@ export default function Evaluate() {
 
     const evaluate = async () => {
       try {
-        const tx = await api.transaction(id);
+        const data = await api.transaction(id);
+        if (mounted) setTx(data);
         const elapsed = Date.now() - start;
         if (elapsed < MIN_DURATION_MS) {
           await new Promise((r) => setTimeout(r, MIN_DURATION_MS - elapsed));
         }
         if (!mounted) return;
-        const status = String(tx.status).toUpperCase();
+        const status = String(data.status).toUpperCase();
         if (status === 'SETTLED' || status === 'APPROVED') {
           navigate(`/transactions/${id}/approved`, { replace: true });
         } else if (status === 'WARNED') {
@@ -37,7 +40,6 @@ export default function Evaluate() {
         } else if (status === 'CANCELED') {
           navigate('/dashboard', { replace: true });
         } else {
-          // Still pending - retry briefly
           setTimeout(evaluate, 800);
         }
       } catch (err) {
@@ -53,6 +55,15 @@ export default function Evaluate() {
     };
   }, [id, navigate]);
 
+  const handleCancel = async () => {
+    try {
+      await api.cancelPayment(id, { reason: 'Cancelled during evaluation.' });
+      navigate('/dashboard', { replace: true });
+    } catch (err) {
+      setError(err.message || 'Could not cancel transaction.');
+    }
+  };
+
   return (
     <main className={styles.page}>
       <header className={styles.header}>
@@ -67,6 +78,35 @@ export default function Evaluate() {
       </header>
 
       {error && <div className={styles.errorBanner}>{error}</div>}
+
+      <section className={styles.summary}>
+        <div className={styles.summaryAccent} />
+        <div className={styles.summaryLeft}>
+          <p className={styles.summaryLabel}>Transfer Details</p>
+          <div className={styles.summaryReceiver}>
+            <div className={styles.receiverAvatar}>
+              <span className="material-symbols-outlined">account_balance</span>
+            </div>
+            <div>
+              <h2>Receiver Account</h2>
+              <p>
+                {tx
+                  ? `Acct ID ••${tx.receiver_id.slice(-4)}`
+                  : 'Loading recipient…'}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className={styles.summaryRight}>
+          <p className={styles.summaryLabel}>Amount</p>
+          <div className={styles.summaryAmount}>
+            {tx ? formatCurrency(tx.amount, tx.currency) : '—'}
+          </div>
+          <p className={styles.summarySub}>
+            {tx?.description || `Transfer (${tx?.currency || 'EUR'})`}
+          </p>
+        </div>
+      </section>
 
       <section className={styles.grid}>
         <div className={styles.panel}>
@@ -90,12 +130,33 @@ export default function Evaluate() {
 
         <div className={styles.panelCenter}>
           <div className={styles.spinner}>
+            <svg viewBox="0 0 36 36" className={styles.spinnerSvg}>
+              <path
+                className={styles.spinnerTrack}
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                fill="none"
+              />
+              <path
+                className={styles.spinnerProgress}
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                fill="none"
+                strokeDasharray="75, 100"
+                strokeLinecap="round"
+              />
+            </svg>
             <span className="material-symbols-outlined">search</span>
           </div>
           <h3>Algorithmic Scan</h3>
-          <p>Checking compliance lists and behavioural rules.</p>
+          <p>Checking global watchlists and OFAC compliance.</p>
         </div>
       </section>
+
+      <div className={styles.actions}>
+        <button type="button" className={styles.btnGhost} onClick={handleCancel}>
+          <span className="material-symbols-outlined">close</span>
+          Cancel Transaction
+        </button>
+      </div>
 
       <p className={styles.footer}>
         SafeFlow AI processes millions of data points to ensure your financial
