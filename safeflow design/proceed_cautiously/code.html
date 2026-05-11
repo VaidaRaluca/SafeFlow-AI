@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Proceed Cautiously</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#eae7ea",
+                        "on-tertiary-fixed": "#121c2b",
+                        "on-primary-fixed-variant": "#41455f",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "on-secondary-container": "#616363",
+                        "on-surface-variant": "#46464d",
+                        "surface-container": "#f0edef",
+                        "primary-fixed-dim": "#c1c5e3",
+                        "primary-fixed": "#dde1ff",
+                        "outline-variant": "#c7c5ce",
+                        "on-primary-fixed": "#151a31",
+                        "surface": "#fcf8fb",
+                        "primary-container": "#1a1f36",
+                        "secondary-container": "#dfe0e0",
+                        "secondary-fixed": "#e2e2e2",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#f3f0f2",
+                        "on-primary-container": "#8286a2",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#dcd9db",
+                        "surface-container-highest": "#e5e1e4",
+                        "on-surface": "#1b1b1d",
+                        "tertiary-container": "#172131",
+                        "surface-container-lowest": "#ffffff",
+                        "outline": "#77767e",
+                        "on-error-container": "#93000a",
+                        "primary": "#03071d",
+                        "on-tertiary": "#ffffff",
+                        "tertiary": "#020919",
+                        "surface-container-low": "#f6f3f5",
+                        "on-background": "#1b1b1d",
+                        "on-tertiary-fixed-variant": "#3d4759",
+                        "surface-tint": "#585d77",
+                        "on-tertiary-container": "#7e889c",
+                        "tertiary-fixed-dim": "#bdc7dc",
+                        "background": "#fcf8fb",
+                        "secondary": "#5d5f5f",
+                        "surface-bright": "#fcf8fb",
+                        "tertiary-fixed": "#d9e3f9",
+                        "inverse-surface": "#313032",
+                        "on-error": "#ffffff",
+                        "inverse-primary": "#c1c5e3",
+                        "surface-variant": "#e5e1e4",
+                        "on-secondary-fixed-variant": "#454747",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "on-primary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "unit": "4px",
+                        "container-margin": "20px",
+                        "gutter": "16px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "display": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "label-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex">
+<!-- Suppressed SideNavBar and TopAppBar as this is a transactional/verification screen requiring user focus -->
+<main class="flex-1 flex flex-col items-center justify-center p-lg relative overflow-hidden">
+<!-- Background Ambient Element -->
+<div class="absolute inset-0 z-0 pointer-events-none flex items-center justify-center opacity-30">
+<div class="w-[800px] h-[800px] rounded-full bg-gradient-to-tr to-transparent blur-3xl from-yellow-200/20"></div>
+</div>
+<div class="w-full max-w-md z-10">
+<!-- Header Section -->
+<div class="text-center mb-xl">
+<div class="inline-flex items-center justify-center w-20 h-20 rounded-full mb-md shadow-sm bg-[#fef3c7]"><span class="material-symbols-outlined text-[40px] text-[#92400e]" style="font-variation-settings: 'FILL' 1;">warning</span></div>
+<h1 class="font-display text-display text-on-surface mb-sm">Proceed Cautiously</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Unusual activity detected. Please verify this transaction.</p>
+</div>
+<!-- Verification Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] border border-outline-variant p-lg mb-lg">
+<!-- Warning Box -->
+<div class="bg-surface-container-high rounded-lg p-md mb-lg flex gap-md items-start">
+<span class="material-symbols-outlined text-on-surface-variant shrink-0 mt-xs">info</span>
+<div>
+<h3 class="font-label-lg text-label-lg text-on-surface mb-xs">Risk Indicator</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">First-time transfer to this recipient. The recipient's account was created recently.</p>
+</div>
+</div>
+<!-- Transaction Summary (Minimal) -->
+<div class="border-b border-outline-variant pb-md mb-md">
+<div class="flex justify-between items-center mb-sm">
+<span class="font-body-md text-body-md text-on-surface-variant">Transfer Amount</span>
+<span class="font-headline-md text-headline-md text-on-surface">$4,500.00</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-md text-body-md text-on-surface-variant">Recipient</span>
+<span class="font-label-lg text-label-lg text-on-surface">J. Doe Holdings</span>
+</div>
+</div>
+<!-- PIN Input -->
+<div class="mb-md">
+<label class="block font-label-lg text-label-lg text-on-surface mb-sm" for="security-pin">Security PIN</label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-md py-sm font-body-lg text-body-lg text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-center tracking-[0.5em]" id="security-pin" maxlength="6" placeholder="Enter 6-digit PIN" type="password"/>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex flex-col gap-md">
+<button class="w-full bg-primary text-on-primary font-label-lg text-label-lg py-md px-lg rounded-[16px] hover:bg-primary-container transition-colors shadow-sm">
+                    Confirm &amp; Settle
+                </button>
+<button class="w-full bg-transparent border border-outline-variant text-on-surface font-label-lg text-label-lg py-md px-lg rounded-[16px] hover:bg-surface-container transition-colors">
+                    Cancel Transaction
+                </button>
+</div>
+<div class="mt-xl text-center">
+<p class="font-label-sm text-label-sm text-on-surface-variant">Need help? <a class="text-primary hover:underline" href="#">Contact Support</a></p>
+</div>
+</div>
+</main>
+</body></html>

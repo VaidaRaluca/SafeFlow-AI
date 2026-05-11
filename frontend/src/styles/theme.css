@@ -1,0 +1,124 @@
+/* SafeFlow AI design tokens — derived from "High-Trust FinTech" design system */
+:root {
+  /* Surfaces */
+  --color-surface: #fcf8fb;
+  --color-surface-dim: #dcd9db;
+  --color-surface-bright: #fcf8fb;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f6f3f5;
+  --color-surface-container: #f0edef;
+  --color-surface-container-high: #eae7ea;
+  --color-surface-container-highest: #e5e1e4;
+  --color-surface-variant: #e5e1e4;
+  --color-on-surface: #1b1b1d;
+  --color-on-surface-variant: #46464d;
+  --color-inverse-surface: #313032;
+  --color-inverse-on-surface: #f3f0f2;
+  --color-outline: #77767e;
+  --color-outline-variant: #c7c5ce;
+
+  /* Brand */
+  --color-primary: #03071d;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #1a1f36;
+  --color-on-primary-container: #8286a2;
+  --color-inverse-primary: #c1c5e3;
+  --color-primary-fixed: #dde1ff;
+  --color-primary-fixed-dim: #c1c5e3;
+  --color-on-primary-fixed: #151a31;
+
+  --color-secondary: #5d5f5f;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #dfe0e0;
+  --color-on-secondary-container: #616363;
+
+  --color-tertiary: #020919;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #172131;
+  --color-on-tertiary-container: #7e889c;
+  --color-tertiary-fixed: #d9e3f9;
+
+  /* Semantic */
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  --color-success: #1f8b3c;
+  --color-on-success: #ffffff;
+  --color-success-container: #d1f5d3;
+  --color-on-success-container: #0b3d16;
+
+  --color-warning: #b35900;
+  --color-on-warning: #ffffff;
+  --color-warning-container: #fef3c7;
+  --color-on-warning-container: #92400e;
+
+  --color-background: #fcf8fb;
+  --color-on-background: #1b1b1d;
+
+  /* Typography */
+  --font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+
+  --font-size-display: 48px;
+  --line-height-display: 56px;
+  --font-weight-display: 700;
+  --letter-spacing-display: -0.02em;
+
+  --font-size-headline-lg: 32px;
+  --line-height-headline-lg: 40px;
+  --font-size-headline-md: 24px;
+  --line-height-headline-md: 32px;
+  --letter-spacing-headline: -0.01em;
+  --font-weight-headline: 600;
+
+  --font-size-body-lg: 18px;
+  --line-height-body-lg: 28px;
+  --font-size-body-md: 16px;
+  --line-height-body-md: 24px;
+  --font-weight-body: 400;
+
+  --font-size-label-lg: 14px;
+  --line-height-label-lg: 20px;
+  --font-weight-label-lg: 600;
+  --letter-spacing-label-lg: 0.01em;
+
+  --font-size-label-sm: 12px;
+  --line-height-label-sm: 16px;
+  --font-weight-label-sm: 500;
+  --letter-spacing-label-sm: 0.02em;
+
+  /* Spacing (8px grid) */
+  --space-unit: 4px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  --space-container-margin: 20px;
+  --space-gutter: 16px;
+
+  /* Radii */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-input: 12px;
+  --radius-button: 16px;
+  --radius-card: 16px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(3, 7, 29, 0.05);
+  --shadow-ambient: 0 20px 40px -15px rgba(3, 7, 29, 0.06);
+  --shadow-ambient-soft: 0 10px 30px -10px rgba(0, 0, 0, 0.06),
+    0 4px 6px -4px rgba(0, 0, 0, 0.02);
+  --shadow-card: 0 24px 48px -12px rgba(0, 0, 0, 0.08);
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.25s ease;
+}

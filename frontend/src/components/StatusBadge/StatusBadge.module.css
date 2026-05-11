@@ -1,0 +1,45 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-label-sm);
+  font-weight: 600;
+  letter-spacing: var(--letter-spacing-label-sm);
+  white-space: nowrap;
+}
+
+.badge .material-symbols-outlined {
+  font-size: 14px;
+}
+
+.pending {
+  background-color: var(--color-tertiary-fixed);
+  color: var(--color-on-tertiary-fixed);
+}
+
+.approved {
+  background-color: var(--color-success-container);
+  color: var(--color-on-success-container);
+}
+
+.warned {
+  background-color: var(--color-warning-container);
+  color: var(--color-on-warning-container);
+}
+
+.settled {
+  background-color: var(--color-success-container);
+  color: var(--color-on-success-container);
+}
+
+.canceled {
+  background-color: var(--color-surface-container-high);
+  color: var(--color-on-surface-variant);
+}
+
+.rejected {
+  background-color: var(--color-error-container);
+  color: var(--color-on-error-container);
+}

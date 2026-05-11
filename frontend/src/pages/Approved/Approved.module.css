@@ -1,0 +1,155 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl) var(--space-container-margin);
+  gap: var(--space-md);
+  text-align: center;
+  background-color: var(--color-background);
+}
+
+.iconWrap {
+  width: 96px;
+  height: 96px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-success-container);
+  color: var(--color-success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-ambient);
+  margin-bottom: var(--space-sm);
+}
+
+.iconWrap .material-symbols-outlined {
+  font-size: 48px;
+}
+
+.title {
+  font-size: var(--font-size-headline-lg);
+  font-weight: var(--font-weight-headline);
+  letter-spacing: var(--letter-spacing-headline);
+  color: var(--color-on-background);
+  margin: 0;
+}
+
+.subtitle {
+  color: var(--color-on-surface-variant);
+  max-width: 480px;
+  margin: 0;
+  font-size: var(--font-size-body-lg);
+}
+
+.errorBanner {
+  background-color: var(--color-error-container);
+  color: var(--color-on-error-container);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+}
+
+.card {
+  width: 100%;
+  max-width: 520px;
+  background-color: var(--color-surface-container-lowest);
+  border: 1px solid color-mix(in srgb, var(--color-outline-variant) 30%, transparent);
+  border-radius: var(--radius-card);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-ambient-soft);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.cardLabel {
+  margin: 0 0 var(--space-sm);
+  font-size: var(--font-size-label-sm);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-on-surface-variant);
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-xs) 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-outline-variant) 30%, transparent);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.rowLabel {
+  color: var(--color-on-surface-variant);
+}
+
+.rowValue {
+  font-weight: 600;
+  color: var(--color-on-background);
+  text-align: right;
+  word-break: break-all;
+}
+
+.mono {
+  font-family: 'Courier New', monospace;
+  font-size: var(--font-size-label-sm);
+}
+
+.pill {
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-full);
+  background-color: var(--color-success-container);
+  color: var(--color-success);
+  font-size: var(--font-size-label-sm);
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  justify-content: center;
+  margin-top: var(--space-lg);
+}
+
+.btnPrimary,
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl);
+  border-radius: var(--radius-button);
+  font-size: var(--font-size-label-lg);
+  font-weight: var(--font-weight-label-lg);
+  border: 1px solid transparent;
+  transition: background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.btnPrimary {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.btnPrimary:hover {
+  background-color: var(--color-primary-container);
+}
+
+.btnSecondary {
+  background-color: var(--color-surface-container-lowest);
+  color: var(--color-primary);
+  border-color: var(--color-outline-variant);
+}
+
+.btnSecondary:hover {
+  background-color: var(--color-surface-container-low);
+  text-decoration: none;
+}

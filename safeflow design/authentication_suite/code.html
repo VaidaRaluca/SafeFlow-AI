@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SafeFlow AI - Authentication</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface": "#1b1b1d",
+                        "surface-dim": "#dcd9db",
+                        "on-secondary-container": "#616363",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed": "#121c2b",
+                        "inverse-on-surface": "#f3f0f2",
+                        "secondary-container": "#dfe0e0",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f6f3f5",
+                        "surface-container": "#f0edef",
+                        "on-secondary-fixed-variant": "#454747",
+                        "on-error-container": "#93000a",
+                        "on-surface-variant": "#46464d",
+                        "on-primary-fixed": "#151a31",
+                        "primary": "#03071d",
+                        "secondary-fixed": "#e2e2e2",
+                        "on-tertiary-fixed-variant": "#3d4759",
+                        "tertiary-fixed-dim": "#bdc7dc",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "surface-container-high": "#eae7ea",
+                        "secondary": "#5d5f5f",
+                        "tertiary": "#020919",
+                        "outline": "#77767e",
+                        "on-primary-fixed-variant": "#41455f",
+                        "surface": "#fcf8fb",
+                        "inverse-primary": "#c1c5e3",
+                        "outline-variant": "#c7c5ce",
+                        "primary-fixed-dim": "#c1c5e3",
+                        "background": "#fcf8fb",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#172131",
+                        "primary-container": "#1a1f36",
+                        "surface-tint": "#585d77",
+                        "tertiary-fixed": "#d9e3f9",
+                        "on-tertiary-container": "#7e889c",
+                        "on-primary-container": "#8286a2",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "on-background": "#1b1b1d",
+                        "surface-container-highest": "#e5e1e4",
+                        "on-primary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#fcf8fb",
+                        "inverse-surface": "#313032",
+                        "primary-fixed": "#dde1ff",
+                        "surface-variant": "#e5e1e4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "card": "16px",
+                        "btn": "16px",
+                        "input": "12px"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "xl": "32px",
+                        "xs": "4px",
+                        "lg": "24px",
+                        "unit": "4px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "container-margin": "20px",
+                        "super": "64px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "display": ["Inter"],
+                        "label-lg": ["Inter"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500" }]
+                    },
+                    "boxShadow": {
+                        "ambient": "0 20px 40px -15px rgba(3, 7, 29, 0.05)",
+                        "ambient-hover": "0 30px 50px -15px rgba(3, 7, 29, 0.08)"
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface font-body-md text-on-surface antialiased overflow-x-hidden">
+<!-- View 1: Login Presentation -->
+<section class="min-h-screen flex flex-col md:flex-row w-full bg-surface-container-lowest">
+<!-- Left Branding Panel -->
+<div class="hidden md:flex md:w-1/2 lg:w-[45%] bg-surface-container-low relative flex-col justify-between p-xl border-r border-outline-variant/30 overflow-hidden">
+<!-- Decorative Background Image -->
+<div class="absolute inset-0 z-0 opacity-40 bg-cover bg-center mix-blend-multiply" data-alt="A sophisticated, high-key architectural abstraction featuring smooth, sweeping structural curves in crisp white and soft light grey tones. The lighting is pristine and diffused, casting subtle ambient shadows that enhance the depth and minimalism of the composition. A faint, glowing reflection hints at a pristine corporate environment, establishing a modern, high-trust, and institutional aesthetic perfectly aligned with a premium financial application." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDeOsN463usSk39Sp-aTvyjO2v9XFduOe8WFTGEP75gYXQYFphN_P8bIUtG3KvGMak_0h0K-k0NjOQ_3CBP4Ako8hE_b5ywjgOQ9WmkJcdY5V6CWzmKmqwmzSlQzLqyVIompJBKfN2zgJChFen-y2zQj8V80pOHW69lRbSbtsAqdsu5DR_Y5Io0va4sgk6ejorvK5oeoxZaoorZvWmvS5HA7c-7ohChnEGdW9pG_DOjPvVLSKJdrZNxV2vSmgCi5N_Ch-l_Fi0f2pQ');">
+</div>
+<div class="relative z-10">
+<div class="flex items-center gap-sm mb-lg">
+<span class="material-symbols-outlined text-primary" style="font-size: 32px; font-variation-settings: 'FILL' 1;">security</span>
+<h1 class="font-headline-md text-headline-md text-primary tracking-tight">SafeFlow AI</h1>
+</div>
+</div>
+<div class="relative z-10 max-w-md">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-md">Secure, seamless financial management.</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Experience next-generation institutional controls and automated reconciliation in one minimal interface.</p>
+</div>
+</div>
+<!-- Right Form Panel -->
+<div class="w-full md:w-1/2 lg:w-[55%] flex items-center justify-center p-md lg:p-xl bg-surface relative">
+<!-- Login Card -->
+<div class="w-full max-w-[420px] bg-surface-container-lowest rounded-card p-xl shadow-ambient border border-outline-variant/20 flex flex-col">
+<div class="mb-xl text-center md:text-left">
+<div class="md:hidden flex items-center justify-center gap-sm mb-lg">
+<span class="material-symbols-outlined text-primary" style="font-size: 28px; font-variation-settings: 'FILL' 1;">security</span>
+<span class="font-headline-md text-headline-md text-primary tracking-tight">SafeFlow AI</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-primary mb-xs">Welcome back</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Enter your credentials to access your dashboard.</p>
+</div>
+<form class="flex flex-col gap-md">
+<div class="flex flex-col gap-unit">
+<label class="font-label-sm text-label-sm text-on-surface-variant ml-sm" for="email">Email Address</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-md text-on-surface-variant" style="font-size: 20px;">mail</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-input py-[14px] pl-[44px] pr-md text-body-md font-body-md text-on-surface placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" id="email" placeholder="name@company.com" type="email"/>
+</div>
+</div>
+<div class="flex flex-col gap-unit">
+<div class="flex items-center justify-between ml-sm mr-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant" for="password">Password</label>
+<a class="font-label-sm text-label-sm text-primary hover:text-primary-container transition-colors" href="#">Forgot password?</a>
+</div>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-md text-on-surface-variant" style="font-size: 20px;">lock</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-input py-[14px] pl-[44px] pr-md text-body-md font-body-md text-on-surface placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" id="password" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<button class="mt-sm w-full bg-primary text-on-primary font-label-lg text-label-lg rounded-btn py-[16px] px-lg hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm flex items-center justify-center gap-sm" type="button">
+                        Sign In
+                        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>
+</button>
+</form>
+<div class="mt-lg pt-lg border-t border-outline-variant/30 text-center">
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Don't have an account? <a class="font-label-lg text-label-lg text-primary hover:underline" href="#register">Request Access</a>
+</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Presentation Divider -->
+<div class="w-full h-xs bg-surface-container-highest my-xl" id="register"></div>
+<!-- View 2: Registration Presentation -->
+<section class="min-h-screen flex flex-col md:flex-row-reverse w-full bg-surface-container-lowest">
+<!-- Right Branding Panel (Reversed for visual rhythm) -->
+<div class="hidden md:flex md:w-1/2 lg:w-[45%] bg-surface-container-low relative flex-col justify-between p-xl border-l border-outline-variant/30 overflow-hidden">
+<!-- Decorative Background Image -->
+<div class="absolute inset-0 z-0 opacity-40 bg-cover bg-center mix-blend-multiply" data-alt="A macro photograph of pristine, layered white paper sheets creating subtle geometric topography. The lighting is incredibly soft and bright, casting gentle, extra-diffused ambient shadows across the textured surfaces. The overall aesthetic is calming, organized, and structurally sound, reflecting a premium corporate brand identity focused on clarity, minimalism, and deep trust." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCASwIA4_Gy-z3N7phYQRAVQtz1xemfaijiuGyxJssxf08mSIwBq9eB4kUC4dyLLZe3LnsCpqGWT6RAiZUjXakD5zYCoWD9ADUIebi5j-q6s7RjNkP36EJi2COcXxbcNrXWvvh2-zZ_XQXG-NCz1bF5jTEMa8UCQUvEV0qBsG0E701GlB6414z_F6fCV0OSCfcBP-A2bshUIfm8dcewBPHCIJ5M4GuiqDNmC3jHOY3Cq6qvjVSRRnvrQjIQ3_8FQQSdvxiY8AMJ9rA');">
+</div>
+<div class="relative z-10 flex justify-end w-full">
+<!-- Top corner element to anchor the space -->
+<span class="material-symbols-outlined text-outline-variant" style="font-size: 48px;">blur_on</span>
+</div>
+<div class="relative z-10 max-w-md ml-auto text-right">
+<h2 class="font-headline-lg text-headline-lg text-primary mb-md">Join the institutional standard.</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Create your account to unlock precision control over your corporate treasury flows.</p>
+</div>
+</div>
+<!-- Left Form Panel -->
+<div class="w-full md:w-1/2 lg:w-[55%] flex items-center justify-center p-md lg:p-xl bg-surface relative">
+<!-- Register Card -->
+<div class="w-full max-w-[460px] bg-surface-container-lowest rounded-card p-xl shadow-ambient border border-outline-variant/20 flex flex-col">
+<div class="mb-xl text-center md:text-left">
+<h2 class="font-headline-md text-headline-md text-primary mb-xs">Create your account</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Set up your profile to get started with SafeFlow AI.</p>
+</div>
+<form class="flex flex-col gap-md">
+<div class="flex flex-col gap-unit">
+<label class="font-label-sm text-label-sm text-on-surface-variant ml-sm" for="fullName">Full Name</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-md text-on-surface-variant" style="font-size: 20px;">person</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-input py-[14px] pl-[44px] pr-md text-body-md font-body-md text-on-surface placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" id="fullName" placeholder="Jane Doe" type="text"/>
+</div>
+</div>
+<div class="flex flex-col gap-unit">
+<label class="font-label-sm text-label-sm text-on-surface-variant ml-sm" for="regEmail">Corporate Email</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-md text-on-surface-variant" style="font-size: 20px;">business_center</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-input py-[14px] pl-[44px] pr-md text-body-md font-body-md text-on-surface placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" id="regEmail" placeholder="jane@company.com" type="email"/>
+</div>
+</div>
+<div class="flex flex-col gap-unit">
+<label class="font-label-sm text-label-sm text-on-surface-variant ml-sm" for="regPassword">Create Password</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-md text-on-surface-variant" style="font-size: 20px;">key</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-input py-[14px] pl-[44px] pr-md text-body-md font-body-md text-on-surface placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" id="regPassword" placeholder="Minimum 12 characters" type="password"/>
+</div>
+</div>
+<div class="flex items-start gap-sm mt-xs mb-sm px-xs">
+<input class="mt-[2px] rounded border-outline-variant text-primary focus:ring-primary h-4 w-4 bg-surface-container-lowest" id="terms" type="checkbox"/>
+<label class="font-body-md text-body-md text-on-surface-variant text-[14px] leading-tight" for="terms">
+                            I agree to the <a class="text-primary hover:underline" href="#">Terms of Service</a> and <a class="text-primary hover:underline" href="#">Privacy Policy</a>.
+                        </label>
+</div>
+<button class="w-full bg-primary text-on-primary font-label-lg text-label-lg rounded-btn py-[16px] px-lg hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-sm flex items-center justify-center gap-sm" type="button">
+                        Create Account
+                    </button>
+</form>
+<div class="mt-lg pt-lg border-t border-outline-variant/30 text-center">
+<p class="font-body-md text-body-md text-on-surface-variant">
+                        Already have an account? <a class="font-label-lg text-label-lg text-primary hover:underline" href="#">Log in</a>
+</p>
+</div>
+</div>
+</div>
+</section>
+</body></html>
