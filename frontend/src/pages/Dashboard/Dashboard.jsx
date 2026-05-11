@@ -315,10 +315,6 @@ export default function Dashboard() {
               <span className="material-symbols-outlined filled">send</span>
               Send Money
             </button>
-            <button type="button" className={styles.secondaryAction} disabled>
-              <span className="material-symbols-outlined">add</span>
-              Add Funds
-            </button>
           </div>
           <div className={styles.balanceGlow} aria-hidden />
         </article>
