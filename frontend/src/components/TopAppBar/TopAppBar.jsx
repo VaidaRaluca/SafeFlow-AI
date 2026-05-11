@@ -258,14 +258,6 @@ export default function TopAppBar({ title }) {
                 <span className="material-symbols-outlined">history</span>
                 Transaction history
               </button>
-              <a
-                role="menuitem"
-                href="mailto:support@safeflow.ai"
-                onClick={() => setOpenMenu(null)}
-              >
-                <span className="material-symbols-outlined">support_agent</span>
-                Contact support
-              </a>
             </div>
           </div>
         )}
