@@ -44,7 +44,7 @@ export default function AppShell() {
               <div className={styles.profileName}>
                 {user?.full_name || user?.email || 'Account holder'}
               </div>
-              <div className={styles.profileMeta}>Premium Account</div>
+              <div className={styles.profileMeta}>Standard Account</div>
             </div>
           </div>
 

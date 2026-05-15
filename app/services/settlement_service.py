@@ -12,7 +12,7 @@ from app.schemas.transaction import TransactionDetailResponse
 APPROVED_STATUS = "APPROVED"
 WARNED_STATUS = "WARNED"
 SETTLED_STATUS = "SETTLED"
-TRUSTED_SAFE_TRANSACTION_THRESHOLD = 3
+TRUSTED_SAFE_TRANSACTION_THRESHOLD = 5
 
 
 class SettlementError(Exception):

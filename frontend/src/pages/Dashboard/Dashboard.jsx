@@ -10,6 +10,8 @@ const POLL_INTERVAL_MS = 5000;
 const DEFAULT_MONTHLY_BUDGET = 10000;
 const CARDS_KEY = 'safeflow.cards';
 const ACTIVE_CARD_KEY = 'safeflow.card.active';
+const PRIMARY_CARD_FROZEN_KEY = 'safeflow.card.frozen';
+const CARD_SETTINGS_KEY = 'safeflow.card.settings';
 const PRIMARY_CARD_ID = 'primary';
 const CARD_TONES = [
   { key: 'Slate', label: 'Classic' },
@@ -20,34 +22,22 @@ const CARD_TONES = [
 export default function Dashboard() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const storageKeys = useMemo(() => getCardStorageKeys(user), [user?.id, user?.email]);
   const [account, setAccount] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState('week');
   const [primaryCardFrozen, setPrimaryCardFrozen] = useState(
-    () => localStorage.getItem('safeflow.card.frozen') === '1'
+    () => readStoredPrimaryCardFrozen(storageKeys)
   );
-  const [savedCards, setSavedCards] = useState(readStoredCards);
+  const [savedCards, setSavedCards] = useState(() => readStoredCards(storageKeys));
   const [activeCardId, setActiveCardId] = useState(
-    () => localStorage.getItem(ACTIVE_CARD_KEY) || PRIMARY_CARD_ID
+    () => readStoredActiveCardId(storageKeys)
   );
   const [addCardForm, setAddCardForm] = useState(defaultAddCardForm);
   const [modal, setModal] = useState(null); // 'addCard' | 'details' | 'settings' | null
-  const [cardSettings, setCardSettings] = useState(() => {
-    try {
-      const raw = localStorage.getItem('safeflow.card.settings');
-      if (raw) return JSON.parse(raw);
-    } catch {
-      // ignore
-    }
-    return {
-      contactless: true,
-      onlinePayments: true,
-      notifications: true,
-      internationalPayments: false,
-    };
-  });
+  const [cardSettings, setCardSettings] = useState(() => readStoredCardSettings(storageKeys));
 
   const holderName = user?.full_name || user?.email || 'Account holder';
 
@@ -71,7 +61,7 @@ export default function Dashboard() {
       primaryCard,
       ...savedCards.map((card) => ({
         ...card,
-        holder: card.holder || holderName,
+        holder: holderName,
       })),
     ],
     [holderName, primaryCard, savedCards]
@@ -86,12 +76,12 @@ export default function Dashboard() {
 
   const saveCards = (nextCards) => {
     setSavedCards(nextCards);
-    localStorage.setItem(CARDS_KEY, JSON.stringify(nextCards));
+    localStorage.setItem(storageKeys.cards, JSON.stringify(nextCards));
   };
 
   const selectCard = (cardId) => {
     setActiveCardId(cardId);
-    localStorage.setItem(ACTIVE_CARD_KEY, cardId);
+    localStorage.setItem(storageKeys.activeCard, cardId);
   };
 
   const toggleFreeze = () => {
@@ -106,7 +96,7 @@ export default function Dashboard() {
 
     setPrimaryCardFrozen((prev) => {
       const next = !prev;
-      localStorage.setItem('safeflow.card.frozen', next ? '1' : '0');
+      localStorage.setItem(storageKeys.primaryCardFrozen, next ? '1' : '0');
       return next;
     });
   };
@@ -114,7 +104,7 @@ export default function Dashboard() {
   const updateSetting = (key) => (e) => {
     setCardSettings((prev) => {
       const next = { ...prev, [key]: e.target.checked };
-      localStorage.setItem('safeflow.card.settings', JSON.stringify(next));
+      localStorage.setItem(storageKeys.cardSettings, JSON.stringify(next));
       return next;
     });
   };
@@ -140,6 +130,13 @@ export default function Dashboard() {
     selectCard(nextCard.id);
     setModal(null);
   };
+
+  useEffect(() => {
+    setSavedCards(readStoredCards(storageKeys));
+    setActiveCardId(readStoredActiveCardId(storageKeys));
+    setPrimaryCardFrozen(readStoredPrimaryCardFrozen(storageKeys));
+    setCardSettings(readStoredCardSettings(storageKeys));
+  }, [storageKeys]);
 
   useEffect(() => {
     let cancelled = false;
@@ -653,14 +650,51 @@ function ToggleRow({ label, description, checked, onChange }) {
   );
 }
 
-function readStoredCards() {
+function getCardStorageKeys(user) {
+  const owner = encodeURIComponent(user?.id || user?.email || 'anonymous');
+  return {
+    cards: `${CARDS_KEY}.${owner}`,
+    activeCard: `${ACTIVE_CARD_KEY}.${owner}`,
+    primaryCardFrozen: `${PRIMARY_CARD_FROZEN_KEY}.${owner}`,
+    cardSettings: `${CARD_SETTINGS_KEY}.${owner}`,
+  };
+}
+
+function readStoredCards(storageKeys) {
   try {
-    const raw = localStorage.getItem(CARDS_KEY);
+    const raw = localStorage.getItem(storageKeys.cards);
     const parsed = raw ? JSON.parse(raw) : [];
     return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
+}
+
+function readStoredActiveCardId(storageKeys) {
+  return localStorage.getItem(storageKeys.activeCard) || PRIMARY_CARD_ID;
+}
+
+function readStoredPrimaryCardFrozen(storageKeys) {
+  return localStorage.getItem(storageKeys.primaryCardFrozen) === '1';
+}
+
+function readStoredCardSettings(storageKeys) {
+  try {
+    const raw = localStorage.getItem(storageKeys.cardSettings);
+    if (raw) return { ...defaultCardSettings(), ...JSON.parse(raw) };
+  } catch {
+    // ignore
+  }
+  return defaultCardSettings();
+}
+
+function defaultCardSettings() {
+  return {
+    contactless: true,
+    onlinePayments: true,
+    notifications: true,
+    internationalPayments: false,
+  };
 }
 
 function defaultAddCardForm() {
