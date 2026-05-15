@@ -27,3 +27,5 @@ db/shared/dumps/*.sql
 .vscode/
 .idea/
 *.log
+
+04_db_backup.sql
