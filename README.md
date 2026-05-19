@@ -23,7 +23,7 @@ This creates a safer payment experience without blocking every unusual transacti
 
 The diagram below shows the behind-the-scenes architecture and decision flow used by the application.
 
-![SafeFlow AI architecture](docs/architecture.png)
+![SafeFlow AI architecture](docs/architecture.svg)
 
 ## How the payment flow works
 
